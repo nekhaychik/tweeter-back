@@ -1,32 +1,31 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
-import { UserEntity } from './modules/user/infrastructure';
+
+// Modules
 import { AuthModule } from './modules/auth';
-import { UserModule } from './modules/user';
-import { join } from 'path';
+import { UserEntity, UserModule } from './modules/user';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: 'password',
-      database: 'tweeter-db',
+      host: `${process.env.MYSQL_HOST}`,
+      port: +`${process.env.MYSQL_PORT}`,
+      username: `${process.env.MYSQL_USERNAME}`,
+      password: `${process.env.MYSQL_PASSWORD}`,
+      database: `${process.env.MYSQL_DATABASE}`,
       entities: [UserEntity],
       synchronize: true,
     }),
     MailerModule.forRoot({
       transport: {
-        host: 'smtp.sendgrid.net',
+        host: `${process.env.MAILER_TRANSPORT_HOST}`,
         auth: {
-          user: 'apikey',
-          pass: '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',
+          user: `${process.env.MAILER_USER}`,
+          pass: `${process.env.MAILER_API_KEY}`,
         },
       },
     }),

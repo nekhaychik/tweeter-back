@@ -9,25 +9,25 @@ export interface GetUserByEmailParameters {
 }
 
 export interface UpdateUserParameters {
-  _id: number;
+  userId: number;
   email?: string;
   hashedPassword?: string;
   emailCode?: string;
 }
 
 export interface DeleteUserParameters {
-  _id: number;
+  userId: number;
 }
 
 export interface SetCurrentRefreshTokenParameters {
-  _id: number;
+  userId: number;
   currentHashedRefreshToken: string;
 }
 
 export interface VerifyUserParameters {
-  _id: number;
+  userId: number;
 }
 
 export interface RemoveRefreshTokenParameters {
-  _id: number;
+  userId: number;
 }

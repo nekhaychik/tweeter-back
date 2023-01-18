@@ -1,16 +1,24 @@
-import { Body, Controller, Post, Req } from '@nestjs/common';
-import { AuthenticationService } from '../application';
+import {
+  Body,
+  ClassSerializerInterceptor,
+  Controller,
+  Post,
+  Req,
+  UseInterceptors,
+} from '@nestjs/common';
+
+// Services
+import { AuthService } from '../application';
 
 @Controller('auth')
+@UseInterceptors(ClassSerializerInterceptor)
 export class AuthController {
-  constructor(private readonly authService: AuthenticationService) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('sign-up')
   public async signUp(@Body() body) {
     const { email, password } = body;
-    const data = await this.authService.signUp({ email, password });
-
-    return data;
+    return await this.authService.signUp({ email, password });
   }
 
   @Post('sign-up-verify')
@@ -24,6 +32,13 @@ export class AuthController {
     ]);
 
     return result;
+  }
+
+  @Post('sign-in')
+  public async signIn(@Body() body) {
+    const { email, password } = body;
+
+    return await this.authService.signIn({ email, password });
   }
 
   @Post('sign-out')

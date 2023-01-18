@@ -24,7 +24,7 @@ export interface SetRefreshTokenParameters {
   currentHashedRefreshToken: string;
 }
 
-export interface VerifyUserParameters {
+export interface VerifyParameters {
   _id: number;
 }
 

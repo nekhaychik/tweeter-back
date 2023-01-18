@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { DeleteResult, UpdateResult } from 'typeorm';
+
+// Infrastructure
 import { UserEntity, UserRepository } from '../infrastructure';
+
+// Interfaces
 import {
   CreateUserParameters,
   DeleteUserParameters,
@@ -34,13 +38,13 @@ export class UserDomain {
   }
 
   public async updateUser({
-    _id,
+    userId,
     email,
     hashedPassword,
     emailCode,
   }: UpdateUserParameters): Promise<UpdateResult> {
     return await this.userRepository.update({
-      _id,
+      _id: userId,
       email,
       hashedPassword,
       emailCode,
@@ -48,30 +52,30 @@ export class UserDomain {
   }
 
   public async deleteUser({
-    _id,
+    userId,
   }: DeleteUserParameters): Promise<DeleteResult> {
-    return await this.userRepository.delete({ _id });
+    return await this.userRepository.delete({ _id: userId });
   }
 
   public async setCurrentRefreshToken({
-    _id,
+    userId,
     currentHashedRefreshToken,
   }: SetCurrentRefreshTokenParameters): Promise<void> {
     await this.userRepository.setRefreshToken({
-      _id,
+      _id: userId,
       currentHashedRefreshToken,
     });
   }
 
   public async verifyUser({
-    _id,
+    userId,
   }: VerifyUserParameters): Promise<UpdateResult> {
-    return this.userRepository.verifyUser({ _id });
+    return this.userRepository.verify({ _id: userId });
   }
 
   public async removeRefreshToken({
-    _id,
+    userId,
   }: RemoveRefreshTokenParameters): Promise<UpdateResult> {
-    return this.userRepository.removeRefrehToken({ _id });
+    return this.userRepository.removeRefrehToken({ _id: userId });
   }
 }

@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
+
+// Entity
 import { UserEntity } from '../entities';
+
+// Interfaces
 import {
   CreateParameters,
   DeleteParameters,
@@ -9,7 +13,7 @@ import {
   RemoveRefreshTokenParameters,
   SetRefreshTokenParameters,
   UpdateParameters,
-  VerifyUserParameters,
+  VerifyParameters,
 } from '../repository-interfaces';
 
 @Injectable()
@@ -65,9 +69,7 @@ export class UserRepository {
     );
   }
 
-  public async verifyUser({
-    _id,
-  }: VerifyUserParameters): Promise<UpdateResult> {
+  public async verify({ _id }: VerifyParameters): Promise<UpdateResult> {
     return await this.userRepository.update({ _id }, { isVerified: true });
   }
 

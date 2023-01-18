@@ -1,33 +1,53 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { DeleteResult, UpdateResult } from 'typeorm';
 import * as crypto from 'crypto';
-import { UserDomain } from '../domain';
 import * as bcrypt from 'bcrypt';
+
+// Entity
+import { UserEntity } from '../infrastructure';
+
+// Domains
+import { UserDomain } from '../domain';
+
+// Interfaces
 import {
   CreateUserParameters,
   DeleteUserParameters,
   GetUserByEmailParameters,
+  GetUserIfRefreshTokenMatchesParameters,
   RemoveRefreshTokenParameters,
   SetCurrentRefreshTokenParameters,
   UpdateUserParameters,
   VerifyUserParameters,
 } from './user-service.type';
-import { UserEntity } from '../infrastructure';
-import { DeleteResult, UpdateResult } from 'typeorm';
 
 @Injectable()
 export class UserService {
   constructor(private readonly userDomain: UserDomain) {}
 
-  public async getUserIfRefreshTokenMatches({ refreshToken, email }) {
-    const user = await this.userDomain.getUserByEmail({ email });
+  public async getUserIfRefreshTokenMatches({
+    refreshToken,
+    email,
+  }: GetUserIfRefreshTokenMatchesParameters): Promise<UserEntity> {
+    try {
+      const user = await this.userDomain.getUserByEmail({ email });
 
-    const isRefreshTokenMatching = await bcrypt.compare(
-      refreshToken,
-      user.currentHashedRefreshToken,
-    );
+      if (!user) {
+        throw new BadRequestException('User with this email does not exist');
+      }
 
-    if (isRefreshTokenMatching) {
+      const isRefreshTokenMatching = await bcrypt.compare(
+        refreshToken,
+        user.currentHashedRefreshToken,
+      );
+
+      if (!isRefreshTokenMatching) {
+        throw new BadRequestException('Refresh token is not correct');
+      }
+
       return user;
+    } catch (err) {
+      throw err;
     }
   }
 
@@ -39,17 +59,12 @@ export class UserService {
         throw new BadRequestException('User with this email already exist');
       }
 
-      let hashedPassword = '';
+      const hashedPassword = await bcrypt.hash(
+        password,
+        +process.env.ROUNDED_SALT,
+      );
 
-      bcrypt.hash(password, +process.env.ROUNDED_SALT, (err, hash) => {
-        if (err) {
-          throw err;
-        }
-
-        hashedPassword = hash;
-      });
-
-      const emailCode = crypto.randomBytes(6).toString();
+      const emailCode = crypto.randomBytes(6).toLocaleString();
 
       user = await this.userDomain.createUser({
         email,
@@ -64,13 +79,16 @@ export class UserService {
   }
 
   public async setCurrentRefreshToken({
-    _id,
+    userId,
     refreshToken,
   }: SetCurrentRefreshTokenParameters): Promise<void> {
-    const currentHashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    const currentHashedRefreshToken = await bcrypt.hash(
+      refreshToken,
+      process.env.ROUNDED_SALT,
+    );
 
     await this.userDomain.setCurrentRefreshToken({
-      _id,
+      userId,
       currentHashedRefreshToken,
     });
   }
@@ -92,17 +110,17 @@ export class UserService {
   }
 
   public async deleteUser({
-    _id,
+    userId,
   }: DeleteUserParameters): Promise<DeleteResult> {
     try {
-      return await this.userDomain.deleteUser({ _id });
+      return await this.userDomain.deleteUser({ userId });
     } catch (err) {
       throw err;
     }
   }
 
   public async updateUser({
-    _id,
+    userId,
     email,
     password,
     emailCode,
@@ -113,7 +131,7 @@ export class UserService {
       }
 
       return await this.userDomain.updateUser({
-        _id,
+        userId,
         email,
         hashedPassword: password,
         emailCode,
@@ -124,20 +142,20 @@ export class UserService {
   }
 
   public async verifyUser({
-    _id,
+    userId,
   }: VerifyUserParameters): Promise<UpdateResult> {
     try {
-      return await this.userDomain.verifyUser({ _id });
+      return await this.userDomain.verifyUser({ userId });
     } catch (err) {
       throw err;
     }
   }
 
   public async removeRefreshToken({
-    _id,
+    userId,
   }: RemoveRefreshTokenParameters): Promise<UpdateResult> {
     try {
-      return await this.userDomain.removeRefreshToken({ _id });
+      return await this.userDomain.removeRefreshToken({ userId });
     } catch (err) {
       throw err;
     }

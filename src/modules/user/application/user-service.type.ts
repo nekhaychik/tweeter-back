@@ -1,10 +1,15 @@
+export interface GetUserIfRefreshTokenMatchesParameters {
+  refreshToken: string;
+  email: string;
+}
+
 export interface CreateUserParameters {
   email: string;
   password: string;
 }
 
 export interface SetCurrentRefreshTokenParameters {
-  _id: number;
+  userId: number;
   refreshToken: string;
 }
 
@@ -13,24 +18,20 @@ export interface GetUserByEmailParameters {
 }
 
 export interface DeleteUserParameters {
-  _id: number;
+  userId: number;
 }
 
 export interface UpdateUserParameters {
-  _id: number;
+  userId: number;
   email?: string;
   password?: string;
   emailCode?: string;
 }
 
 export interface VerifyUserParameters {
-  _id: number;
+  userId: number;
 }
 
 export interface RemoveRefreshTokenParameters {
-  _id: number;
-}
-
-export interface SignOutParameters {
-  email: string;
+  userId: number;
 }

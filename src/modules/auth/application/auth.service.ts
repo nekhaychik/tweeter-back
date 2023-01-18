@@ -1,6 +1,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { UpdateResult } from 'typeorm';
+import * as bcrypt from 'bcrypt';
+
+// Services
+import { UserService } from 'src/modules/user';
+import { MailerService } from '@nestjs-modules/mailer';
+
+// Interfaces
 import {
   GetCookieWithJwtAccessTokenParameters,
   GetCookieWithJwtRefreshTokenParameters,
@@ -8,13 +15,13 @@ import {
   SignUpParameters,
   SignUpVerifyResponse,
   SignUpVerifyParameters,
+  SignOutParameters,
+  SignInParameters,
+  SigInResponse,
 } from './auth-service.types';
-import { SignOutParameters, UserService } from 'src/modules/user';
-import { MailerService } from '@nestjs-modules/mailer';
-import { UpdateResult } from 'typeorm';
 
 @Injectable()
-export class AuthenticationService {
+export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
@@ -27,8 +34,7 @@ export class AuthenticationService {
     const payload = { userId };
     const token = this.jwtService.sign(payload, {
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
-
-      expiresIn: 600,
+      expiresIn: +process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME,
     });
 
     return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME}`;
@@ -41,7 +47,7 @@ export class AuthenticationService {
 
     const token = this.jwtService.sign(payload, {
       secret: process.env.JWT_REFRESH_TOKEN_SECRET,
-      expiresIn: 600,
+      expiresIn: +process.env.JWT_REFRESH_EXPIRATION_TIME,
     });
 
     const cookie = `Refresh=${token}; HttpOnly; Path=/; Max-Age=${process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME}`;
@@ -58,7 +64,7 @@ export class AuthenticationService {
 
       const response = await this.mailService.sendMail({
         to: user.email,
-        from: 'irina.nekhaychik.i@gmail.com',
+        from: process.env.MAILER_FROM_EMAIL,
         subject: 'Email Code',
         text: `Yor email code: ${user.emailCode}`,
       });
@@ -82,7 +88,7 @@ export class AuthenticationService {
         );
       }
 
-      const result = await this.userService.verifyUser({ _id: user._id });
+      const result = await this.userService.verifyUser({ userId: user._id });
 
       if (!result) {
         throw new Error('Something went wrong...');
@@ -97,7 +103,7 @@ export class AuthenticationService {
       });
 
       await this.userService.setCurrentRefreshToken({
-        _id: user._id,
+        userId: user._id,
         refreshToken: refreshTokenCookie.token,
       });
 
@@ -106,10 +112,15 @@ export class AuthenticationService {
         accessTokenCookie,
         refreshTokenCookie,
       };
-    } catch (err) {}
+    } catch (err) {
+      throw err;
+    }
   }
 
-  public async signIn({ email, password }) {
+  public async signIn({
+    email,
+    password,
+  }: SignInParameters): Promise<SigInResponse> {
     try {
       const user = await this.userService.getUserByEmail({ email });
 
@@ -117,7 +128,7 @@ export class AuthenticationService {
         throw new BadRequestException('You are not verified.');
       }
 
-      if (!bcrypt.compare(user.hashedPassword, password)) {
+      if (!bcrypt.compare(password, user.hashedPassword)) {
         throw new BadRequestException('Incorrect password.');
       }
 
@@ -130,7 +141,7 @@ export class AuthenticationService {
       });
 
       await this.userService.setCurrentRefreshToken({
-        _id: user._id,
+        userId: user._id,
         refreshToken: refreshTokenCookie.token,
       });
 
@@ -148,7 +159,7 @@ export class AuthenticationService {
     try {
       const user = await this.userService.getUserByEmail({ email });
 
-      return await this.userService.removeRefreshToken({ _id: user._id });
+      return await this.userService.removeRefreshToken({ userId: user._id });
     } catch (err) {
       throw err;
     }

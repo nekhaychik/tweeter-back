@@ -1,4 +1,4 @@
-import { UserEntity } from 'src/modules/user/infrastructure';
+import { UserEntity } from 'src/modules/user';
 import { UpdateResult } from 'typeorm';
 
 export interface GetCookieWithJwtAccessTokenParameters {
@@ -31,4 +31,22 @@ export interface SignUpVerifyResponse {
 export interface SignUpVerifyParameters {
   email: string;
   emailCode: string;
+}
+
+export interface SignInParameters {
+  email: string;
+  password: string;
+}
+
+export interface SigInResponse {
+  user: UserEntity;
+  accessTokenCookie: string;
+  refreshTokenCookie: {
+    token: string;
+    cookie: string;
+  };
+}
+
+export interface SignOutParameters {
+  email: string;
 }
