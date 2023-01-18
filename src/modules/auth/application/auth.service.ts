@@ -9,8 +9,9 @@ import {
   SignUpVerifyResponse,
   SignUpVerifyParameters,
 } from './auth-service.types';
-import { UserService } from 'src/modules/user';
+import { SignOutParameters, UserService } from 'src/modules/user';
 import { MailerService } from '@nestjs-modules/mailer';
+import { UpdateResult } from 'typeorm';
 
 @Injectable()
 export class AuthenticationService {
@@ -113,7 +114,7 @@ export class AuthenticationService {
       const user = await this.userService.getUserByEmail({ email });
 
       if (!user.isVerified) {
-        throw new BadRequestException('You are not verified.')
+        throw new BadRequestException('You are not verified.');
       }
 
       if (!bcrypt.compare(user.hashedPassword, password)) {
@@ -143,7 +144,20 @@ export class AuthenticationService {
     }
   }
 
-  public async signOut({ email }) {
-    
+  public async signOut({ email }: SignOutParameters): Promise<UpdateResult> {
+    try {
+      const user = await this.userService.getUserByEmail({ email });
+
+      return await this.userService.removeRefreshToken({ _id: user._id });
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public getCookiesForLogOut(): string[] {
+    return [
+      'Authentication=; HttpOnly; Path=/; Max-Age=0',
+      'Refresh=; HttpOnly; Path=/; Max-Age=0',
+    ];
   }
 }

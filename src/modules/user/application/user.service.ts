@@ -6,6 +6,7 @@ import {
   CreateUserParameters,
   DeleteUserParameters,
   GetUserByEmailParameters,
+  RemoveRefreshTokenParameters,
   SetCurrentRefreshTokenParameters,
   UpdateUserParameters,
   VerifyUserParameters,
@@ -132,9 +133,13 @@ export class UserService {
     }
   }
 
-  // async removeRefreshToken(userId: number) {
-  //   return this.usersRepository.update(userId, {
-  //     currentHashedRefreshToken: null,
-  //   });
-  // }
+  public async removeRefreshToken({
+    _id,
+  }: RemoveRefreshTokenParameters): Promise<UpdateResult> {
+    try {
+      return await this.userDomain.removeRefreshToken({ _id });
+    } catch (err) {
+      throw err;
+    }
+  }
 }

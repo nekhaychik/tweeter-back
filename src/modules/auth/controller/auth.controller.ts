@@ -25,4 +25,13 @@ export class AuthController {
 
     return result;
   }
+
+  @Post('sign-out')
+  public async signOut(@Body() body, @Req() request) {
+    const { email } = body;
+
+    await this.authService.signOut({ email });
+
+    request.res.setHeader('Set-Cookie', this.authService.getCookiesForLogOut());
+  }
 }

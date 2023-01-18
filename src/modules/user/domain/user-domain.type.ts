@@ -27,3 +27,7 @@ export interface SetCurrentRefreshTokenParameters {
 export interface VerifyUserParameters {
   _id: number;
 }
+
+export interface RemoveRefreshTokenParameters {
+  _id: number;
+}

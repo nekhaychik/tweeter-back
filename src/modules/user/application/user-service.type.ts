@@ -26,3 +26,11 @@ export interface UpdateUserParameters {
 export interface VerifyUserParameters {
   _id: number;
 }
+
+export interface RemoveRefreshTokenParameters {
+  _id: number;
+}
+
+export interface SignOutParameters {
+  email: string;
+}
