@@ -84,7 +84,7 @@ export class UserService {
   }: SetCurrentRefreshTokenParameters): Promise<void> {
     const currentHashedRefreshToken = await bcrypt.hash(
       refreshToken,
-      process.env.ROUNDED_SALT,
+      +process.env.ROUNDED_SALT,
     );
 
     await this.userDomain.setCurrentRefreshToken({
