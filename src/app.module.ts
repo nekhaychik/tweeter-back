@@ -6,6 +6,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 // Modules
 import { AuthModule } from './modules/auth';
 import { UserEntity, UserModule } from './modules/user';
+import { TweetModule } from './modules/tweet/tweet.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { UserEntity, UserModule } from './modules/user';
     }),
     AuthModule,
     UserModule,
+    TweetModule,
   ],
   controllers: [],
   providers: [],
