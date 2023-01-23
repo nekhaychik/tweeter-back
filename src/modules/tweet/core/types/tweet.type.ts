@@ -4,7 +4,7 @@ export interface Tweet {
   updatedAt: string;
   isComment: boolean;
   text?: string;
-  imagesURLs?: string[];
+  imagesURLs?: string;
   authorId: string;
   parentRecordAuthorId?: string;
   parentRecordId?: string;

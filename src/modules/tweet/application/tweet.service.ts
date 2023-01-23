@@ -55,10 +55,12 @@ export class TweetService {
       const {
         isComment,
         text,
-        imagesURLs,
+        imagesURLs: imagesURLsJSON,
         _id: parentRecordId,
         authorId: parentRecordAuthorId,
       } = tweet;
+
+      const imagesURLs = JSON.parse(imagesURLsJSON);
 
       return await this.tweetDomain.createTweet({
         isComment,
@@ -122,7 +124,9 @@ export class TweetService {
         );
       }
 
-      const { isComment, text, imagesURLs } = tweet;
+      const { isComment, text, imagesURLs: imagesURLsJSON } = tweet;
+
+      const imagesURLs = JSON.parse(imagesURLsJSON);
 
       return await this.tweetDomain.updateTweet({
         tweetId,

@@ -31,7 +31,7 @@ export class TweetRepository {
       updatedAt: new Date().toUTCString(),
       isComment,
       text,
-      imagesURLs,
+      imagesURLs: JSON.stringify(imagesURLs),
       authorId,
       parentRecordAuthorId,
       parentRecordId,
@@ -56,7 +56,12 @@ export class TweetRepository {
   }: UpdateParameters): Promise<UpdateResult> {
     return await this.tweetRepository.update(
       { _id },
-      { updatedAt: new Date().toUTCString(), isComment, text, imagesURLs },
+      {
+        updatedAt: new Date().toUTCString(),
+        isComment,
+        text,
+        imagesURLs: JSON.stringify(imagesURLs),
+      },
     );
   }
 

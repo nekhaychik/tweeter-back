@@ -6,7 +6,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 // Modules
 import { AuthModule } from './modules/auth';
 import { UserEntity, UserModule } from './modules/user';
-import { TweetModule } from './modules/tweet/tweet.module';
+import { TweetEntity, TweetModule } from './modules/tweet';
 
 @Module({
   imports: [
@@ -18,7 +18,7 @@ import { TweetModule } from './modules/tweet/tweet.module';
       username: `${process.env.MYSQL_USERNAME}`,
       password: `${process.env.MYSQL_PASSWORD}`,
       database: `${process.env.MYSQL_DATABASE}`,
-      entities: [UserEntity],
+      entities: [UserEntity, TweetEntity],
       synchronize: true,
     }),
     MailerModule.forRoot({
