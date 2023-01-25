@@ -17,6 +17,10 @@ export interface GetUserByEmailParameters {
   email: string;
 }
 
+export interface GetUserByIdParameters {
+  userId: number;
+}
+
 export interface DeleteUserParameters {
   userId: number;
 }

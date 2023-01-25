@@ -10,6 +10,7 @@ import {
   CreateParameters,
   DeleteParameters,
   GetByEmailParameters,
+  GetByIdParameters,
   RemoveRefreshTokenParameters,
   SetRefreshTokenParameters,
   UpdateParameters,
@@ -39,6 +40,10 @@ export class UserRepository {
     email,
   }: GetByEmailParameters): Promise<UserEntity> {
     return await this.userRepository.findOneBy({ email });
+  }
+
+  public async getById({ _id }: GetByIdParameters): Promise<UserEntity> {
+    return await this.userRepository.findOneBy({ _id });
   }
 
   public async update({

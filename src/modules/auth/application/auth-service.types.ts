@@ -3,10 +3,12 @@ import { UpdateResult } from 'typeorm';
 
 export interface GetCookieWithJwtAccessTokenParameters {
   userId: number;
+  email: string;
 }
 
 export interface GetCookieWithJwtRefreshTokenParameters {
   userId: number;
+  email: string;
 }
 
 export interface RefreshTokenCookie {

@@ -14,6 +14,7 @@ import {
   CreateUserParameters,
   DeleteUserParameters,
   GetUserByEmailParameters,
+  GetUserByIdParameters,
   GetUserIfRefreshTokenMatchesParameters,
   RemoveRefreshTokenParameters,
   SetCurrentRefreshTokenParameters,
@@ -64,7 +65,7 @@ export class UserService {
         +process.env.ROUNDED_SALT,
       );
 
-      const emailCode = crypto.randomBytes(6).toLocaleString();
+      const emailCode = crypto.randomBytes(6).toString('hex');
 
       user = await this.userDomain.createUser({
         email,
@@ -101,6 +102,22 @@ export class UserService {
 
       if (!user) {
         throw new BadRequestException('User with this email does not exist');
+      }
+
+      return user;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async getUserById({
+    userId,
+  }: GetUserByIdParameters): Promise<UserEntity> {
+    try {
+      const user = await this.userDomain.getUserById({ userId });
+
+      if (!user) {
+        throw new BadRequestException('User with this id does not exist');
       }
 
       return user;

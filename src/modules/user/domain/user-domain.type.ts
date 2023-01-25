@@ -8,6 +8,10 @@ export interface GetUserByEmailParameters {
   email: string;
 }
 
+export interface GetUserByIdParameters {
+  userId: number;
+}
+
 export interface UpdateUserParameters {
   userId: number;
   email?: string;

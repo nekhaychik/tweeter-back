@@ -9,6 +9,7 @@ import {
   CreateUserParameters,
   DeleteUserParameters,
   GetUserByEmailParameters,
+  GetUserByIdParameters,
   RemoveRefreshTokenParameters,
   SetCurrentRefreshTokenParameters,
   UpdateUserParameters,
@@ -35,6 +36,12 @@ export class UserDomain {
     email,
   }: GetUserByEmailParameters): Promise<UserEntity> {
     return await this.userRepository.getByEmail({ email });
+  }
+
+  public async getUserById({
+    userId,
+  }: GetUserByIdParameters): Promise<UserEntity> {
+    return await this.userRepository.getById({ _id: userId });
   }
 
   public async updateUser({

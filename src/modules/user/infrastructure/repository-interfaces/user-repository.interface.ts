@@ -8,6 +8,10 @@ export interface GetByEmailParameters {
   email: string;
 }
 
+export interface GetByIdParameters {
+  _id: number;
+}
+
 export interface UpdateParameters {
   _id: number;
   email?: string;
