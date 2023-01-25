@@ -11,6 +11,7 @@ import { JwtRefreshTokenStrategy } from './strategy';
 
 //Controllers
 import { AuthController } from './controller';
+import { AuthGuard } from './guard/auth.guard';
 
 @Module({
   imports: [UserModule],
@@ -21,6 +22,7 @@ import { AuthController } from './controller';
     JwtRefreshGuard,
     JwtRefreshTokenStrategy,
     JwtService,
+    AuthGuard,
   ],
 })
 export class AuthModule {}

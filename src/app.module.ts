@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MailerModule } from '@nestjs-modules/mailer';
@@ -7,6 +7,8 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { AuthModule } from './modules/auth';
 import { UserEntity, UserModule } from './modules/user';
 import { TweetEntity, TweetModule } from './modules/tweet';
+import { AuthMiddleware } from './modules/auth/middlewares';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -35,6 +37,12 @@ import { TweetEntity, TweetModule } from './modules/tweet';
     TweetModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [JwtService],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(AuthMiddleware)
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
+  }
+}

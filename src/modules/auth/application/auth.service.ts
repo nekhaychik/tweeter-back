@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { UpdateResult } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
 // Services
 import { UserService } from 'src/modules/user';
+import { JwtService } from '@nestjs/jwt';
 import { MailerService } from '@nestjs-modules/mailer';
 
 // Interfaces
@@ -13,12 +13,12 @@ import {
   GetCookieWithJwtRefreshTokenParameters,
   RefreshTokenCookie,
   SignUpParameters,
-  SignUpVerifyResponse,
   SignUpVerifyParameters,
   SignOutParameters,
   SignInParameters,
   SigInResponse,
 } from './auth-service.types';
+import { AccessTokenPayload } from '../core';
 
 @Injectable()
 export class AuthService {
@@ -30,8 +30,9 @@ export class AuthService {
 
   public getCookieWithJwtAccessToken({
     userId,
+    email,
   }: GetCookieWithJwtAccessTokenParameters): string {
-    const payload = { userId };
+    const payload: AccessTokenPayload = { userId, email };
     const token = this.jwtService.sign(payload, {
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
       expiresIn: +process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME,
@@ -42,8 +43,9 @@ export class AuthService {
 
   public getCookieWithJwtRefreshToken({
     userId,
+    email,
   }: GetCookieWithJwtRefreshTokenParameters): RefreshTokenCookie {
-    const payload = { userId };
+    const payload = { userId, email };
 
     const token = this.jwtService.sign(payload, {
       secret: process.env.JWT_REFRESH_TOKEN_SECRET,
@@ -75,10 +77,7 @@ export class AuthService {
     }
   }
 
-  public async signUpVerify({
-    email,
-    emailCode,
-  }: SignUpVerifyParameters): Promise<SignUpVerifyResponse> {
+  public async signUpVerify({ email, emailCode }: SignUpVerifyParameters) {
     try {
       const user = await this.userService.getUserByEmail({ email });
 
@@ -96,10 +95,12 @@ export class AuthService {
 
       const accessTokenCookie = this.getCookieWithJwtAccessToken({
         userId: user._id,
+        email,
       });
 
       const refreshTokenCookie = this.getCookieWithJwtRefreshToken({
         userId: user._id,
+        email,
       });
 
       await this.userService.setCurrentRefreshToken({
@@ -108,7 +109,7 @@ export class AuthService {
       });
 
       return {
-        result,
+        user,
         accessTokenCookie,
         refreshTokenCookie,
       };
@@ -134,10 +135,12 @@ export class AuthService {
 
       const accessTokenCookie = this.getCookieWithJwtAccessToken({
         userId: user._id,
+        email,
       });
 
       const refreshTokenCookie = this.getCookieWithJwtRefreshToken({
         userId: user._id,
+        email,
       });
 
       await this.userService.setCurrentRefreshToken({
