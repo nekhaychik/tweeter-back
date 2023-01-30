@@ -23,13 +23,19 @@ export class TweetService {
   public async createTweet({
     isComment,
     text,
-    imagesURLs,
+    files,
     userId,
   }: CreateTweetParameters): Promise<TweetDto> {
     try {
-      if (!text && imagesURLs.length === 0) {
+      if (!text && files.length === 0) {
         throw new BadRequestException('Record cannot be empty.');
       }
+
+      const imagesURLs = [];
+
+      files.forEach((file: Express.Multer.File) => {
+        imagesURLs.push(file.path);
+      });
 
       return await this.tweetDomain.createTweet({
         isComment,
@@ -102,9 +108,11 @@ export class TweetService {
     }
   }
 
-  public async updateTweet({
+  public async updateTweetWithoutImages({
     userId,
     tweetId,
+    text,
+    isComment,
   }: UpdateTweetParameters): Promise<TweetDto & { status: Status }> {
     try {
       const tweet = await this.tweetDomain.getTweetByTweetId({ tweetId });
@@ -125,15 +133,16 @@ export class TweetService {
         );
       }
 
-      const { isComment, text, imagesURLs: imagesURLsJSON } = tweet;
-
-      const imagesURLs = JSON.parse(imagesURLsJSON);
+      if (isComment === tweet.isComment && text === tweet.text) {
+        throw new BadRequestException(
+          'You cannot eidt it. There are not changes',
+        );
+      }
 
       return await this.tweetDomain.updateTweet({
         tweetId,
         isComment,
         text,
-        imagesURLs,
       });
     } catch (err) {
       throw err;

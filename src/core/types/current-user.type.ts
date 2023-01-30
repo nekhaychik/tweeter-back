@@ -1,4 +1,4 @@
 export interface CurrentUser {
-  userId: number;
+  userId: string;
   email: string;
 }

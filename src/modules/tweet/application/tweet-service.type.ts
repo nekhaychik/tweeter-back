@@ -1,7 +1,7 @@
 export interface CreateTweetParameters {
   isComment: boolean;
   text?: string;
-  imagesURLs?: string[];
+  files?: Array<Express.Multer.File>;
   userId: string;
 }
 
@@ -21,6 +21,8 @@ export interface GetAllUserTweetsParameters {
 export interface UpdateTweetParameters {
   userId: string;
   tweetId: string;
+  text?: string;
+  isComment?: boolean;
 }
 
 export interface DeleteTweetParameters {
