@@ -3,9 +3,6 @@ import { DeleteResult, UpdateResult } from 'typeorm';
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt';
 
-// Entity
-import { UserEntity } from '../infrastructure';
-
 // Domains
 import { UserDomain } from '../domain';
 
@@ -18,9 +15,11 @@ import {
   GetUserIfRefreshTokenMatchesParameters,
   RemoveRefreshTokenParameters,
   SetCurrentRefreshTokenParameters,
+  UpdateUserAvatarParameters,
   UpdateUserParameters,
   VerifyUserParameters,
 } from './user-service.type';
+import { Status, UserDto } from 'src/core';
 
 @Injectable()
 export class UserService {
@@ -29,7 +28,7 @@ export class UserService {
   public async getUserIfRefreshTokenMatches({
     refreshToken,
     email,
-  }: GetUserIfRefreshTokenMatchesParameters): Promise<UserEntity> {
+  }: GetUserIfRefreshTokenMatchesParameters): Promise<UserDto> {
     try {
       const user = await this.userDomain.getUserByEmail({ email });
 
@@ -52,7 +51,7 @@ export class UserService {
     }
   }
 
-  public async createUser({ email, password }: CreateUserParameters) {
+  public async createUser({ email, username, password }: CreateUserParameters) {
     try {
       let user = await this.userDomain.getUserByEmail({ email });
 
@@ -69,6 +68,7 @@ export class UserService {
 
       user = await this.userDomain.createUser({
         email,
+        username,
         hashedPassword,
         emailCode,
       });
@@ -77,6 +77,10 @@ export class UserService {
     } catch (err) {
       throw err;
     }
+  }
+
+  public async getAllUsers(): Promise<UserDto[]> {
+    return await this.userDomain.getAllUsers();
   }
 
   public async setCurrentRefreshToken({
@@ -96,7 +100,7 @@ export class UserService {
 
   public async getUserByEmail({
     email,
-  }: GetUserByEmailParameters): Promise<UserEntity> {
+  }: GetUserByEmailParameters): Promise<UserDto> {
     try {
       const user = await this.userDomain.getUserByEmail({ email });
 
@@ -112,7 +116,7 @@ export class UserService {
 
   public async getUserById({
     userId,
-  }: GetUserByIdParameters): Promise<UserEntity> {
+  }: GetUserByIdParameters): Promise<UserDto> {
     try {
       const user = await this.userDomain.getUserById({ userId });
 
@@ -139,9 +143,10 @@ export class UserService {
   public async updateUser({
     userId,
     email,
+    username,
     password,
     emailCode,
-  }: UpdateUserParameters): Promise<UpdateResult> {
+  }: UpdateUserParameters): Promise<UserDto & { status: Status }> {
     try {
       if (password) {
         password = await bcrypt.hash(password, +process.env.ROUNDED_SALT);
@@ -150,6 +155,7 @@ export class UserService {
       return await this.userDomain.updateUser({
         userId,
         email,
+        username,
         hashedPassword: password,
         emailCode,
       });
@@ -158,9 +164,26 @@ export class UserService {
     }
   }
 
-  public async verifyUser({
+  public async updateUserAvatar({
     userId,
-  }: VerifyUserParameters): Promise<UpdateResult> {
+    file,
+  }: UpdateUserAvatarParameters): Promise<UserDto & { status: Status }> {
+    try {
+      const avatarURL = file.path;
+
+      const user = await this.userDomain.getUserById({ userId });
+
+      if (!user) {
+        throw new BadRequestException('User does not exist');
+      }
+
+      return await this.userDomain.updateUser({ userId, avatarURL });
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async verifyUser({ userId }: VerifyUserParameters): Promise<void> {
     try {
       return await this.userDomain.verifyUser({ userId });
     } catch (err) {

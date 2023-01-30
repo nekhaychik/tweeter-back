@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { Status, UserDto } from 'src/core';
 import { DeleteResult, UpdateResult } from 'typeorm';
 
 // Infrastructure
-import { UserEntity, UserRepository } from '../infrastructure';
+import { UserRepository } from '../infrastructure';
 
 // Interfaces
 import {
@@ -22,37 +23,47 @@ export class UserDomain {
 
   public async createUser({
     email,
+    username,
     hashedPassword,
     emailCode,
-  }: CreateUserParameters): Promise<UserEntity> {
+  }: CreateUserParameters): Promise<UserDto> {
     return await this.userRepository.create({
       email,
+      username,
       hashedPassword,
       emailCode,
     });
   }
 
+  public async getAllUsers(): Promise<UserDto[]> {
+    return await this.userRepository.getAllUsers();
+  }
+
   public async getUserByEmail({
     email,
-  }: GetUserByEmailParameters): Promise<UserEntity> {
+  }: GetUserByEmailParameters): Promise<UserDto> {
     return await this.userRepository.getByEmail({ email });
   }
 
   public async getUserById({
     userId,
-  }: GetUserByIdParameters): Promise<UserEntity> {
+  }: GetUserByIdParameters): Promise<UserDto> {
     return await this.userRepository.getById({ _id: userId });
   }
 
   public async updateUser({
     userId,
     email,
+    username,
+    avatarURL,
     hashedPassword,
     emailCode,
-  }: UpdateUserParameters): Promise<UpdateResult> {
+  }: UpdateUserParameters): Promise<UserDto & { status: Status }> {
     return await this.userRepository.update({
       _id: userId,
       email,
+      username,
+      avatarURL,
       hashedPassword,
       emailCode,
     });
@@ -74,9 +85,7 @@ export class UserDomain {
     });
   }
 
-  public async verifyUser({
-    userId,
-  }: VerifyUserParameters): Promise<UpdateResult> {
+  public async verifyUser({ userId }: VerifyUserParameters): Promise<void> {
     return this.userRepository.verify({ _id: userId });
   }
 

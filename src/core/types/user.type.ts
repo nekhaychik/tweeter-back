@@ -1,8 +1,12 @@
 export interface UserDto {
-  _id: number;
+  _id: string;
   email: string;
+  username: string;
+  avatarURL?: string;
   hashedPassword: string;
-  emailCode: string;
+  emailCode?: string;
   currentHashedRefreshToken?: string;
   isVerified?: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }

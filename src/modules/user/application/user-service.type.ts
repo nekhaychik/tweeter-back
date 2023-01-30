@@ -5,11 +5,12 @@ export interface GetUserIfRefreshTokenMatchesParameters {
 
 export interface CreateUserParameters {
   email: string;
+  username: string;
   password: string;
 }
 
 export interface SetCurrentRefreshTokenParameters {
-  userId: number;
+  userId: string;
   refreshToken: string;
 }
 
@@ -18,24 +19,30 @@ export interface GetUserByEmailParameters {
 }
 
 export interface GetUserByIdParameters {
-  userId: number;
+  userId: string;
 }
 
 export interface DeleteUserParameters {
-  userId: number;
+  userId: string;
 }
 
 export interface UpdateUserParameters {
-  userId: number;
+  userId: string;
   email?: string;
+  username?: string;
   password?: string;
   emailCode?: string;
 }
 
+export interface UpdateUserAvatarParameters {
+  userId: string;
+  file: Express.Multer.File;
+}
+
 export interface VerifyUserParameters {
-  userId: number;
+  userId: string;
 }
 
 export interface RemoveRefreshTokenParameters {
-  userId: number;
+  userId: string;
 }

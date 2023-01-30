@@ -1,5 +1,6 @@
 export interface CreateUserParameters {
   email: string;
+  username: string;
   hashedPassword: string;
   emailCode: string;
 }
@@ -9,29 +10,31 @@ export interface GetUserByEmailParameters {
 }
 
 export interface GetUserByIdParameters {
-  userId: number;
+  userId: string;
 }
 
 export interface UpdateUserParameters {
-  userId: number;
+  userId: string;
   email?: string;
+  username?: string;
+  avatarURL?: string;
   hashedPassword?: string;
   emailCode?: string;
 }
 
 export interface DeleteUserParameters {
-  userId: number;
+  userId: string;
 }
 
 export interface SetCurrentRefreshTokenParameters {
-  userId: number;
+  userId: string;
   currentHashedRefreshToken: string;
 }
 
 export interface VerifyUserParameters {
-  userId: number;
+  userId: string;
 }
 
 export interface RemoveRefreshTokenParameters {
-  userId: number;
+  userId: string;
 }

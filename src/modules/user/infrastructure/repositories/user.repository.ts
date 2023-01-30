@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Status, UserDto } from 'src/core';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 
 // Entity
@@ -26,36 +27,53 @@ export class UserRepository {
 
   public async create({
     email,
+    username,
     hashedPassword,
     emailCode,
-  }: CreateParameters): Promise<UserEntity> {
+  }: CreateParameters): Promise<UserDto> {
     return await this.userRepository.save({
       email,
+      username,
       hashedPassword,
       emailCode,
     });
   }
 
-  public async getByEmail({
-    email,
-  }: GetByEmailParameters): Promise<UserEntity> {
+  public async getAllUsers(): Promise<UserDto[]> {
+    return this.userRepository.find();
+  }
+
+  public async getByEmail({ email }: GetByEmailParameters): Promise<UserDto> {
     return await this.userRepository.findOneBy({ email });
   }
 
-  public async getById({ _id }: GetByIdParameters): Promise<UserEntity> {
+  public async getById({ _id }: GetByIdParameters): Promise<UserDto> {
     return await this.userRepository.findOneBy({ _id });
   }
 
   public async update({
     _id,
     email,
+    username,
+    avatarURL,
     hashedPassword,
     emailCode,
-  }: UpdateParameters): Promise<UpdateResult> {
-    return await this.userRepository.update(
+  }: UpdateParameters): Promise<UserDto & { status: Status }> {
+    await this.userRepository.update(
       { _id },
-      { email, hashedPassword, emailCode },
+      {
+        email,
+        username,
+        avatarURL,
+        hashedPassword,
+        emailCode,
+        updatedAt: new Date(),
+      },
     );
+
+    const updatedUser = await this.userRepository.findOneBy({ _id });
+
+    return { ...updatedUser, status: Status.success };
   }
 
   public async delete({ _id }: DeleteParameters): Promise<DeleteResult> {
@@ -74,8 +92,8 @@ export class UserRepository {
     );
   }
 
-  public async verify({ _id }: VerifyParameters): Promise<UpdateResult> {
-    return await this.userRepository.update({ _id }, { isVerified: true });
+  public async verify({ _id }: VerifyParameters): Promise<void> {
+    await this.userRepository.update({ _id }, { isVerified: true });
   }
 
   public async removeRefrehToken({
