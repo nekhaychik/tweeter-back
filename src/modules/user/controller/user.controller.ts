@@ -7,9 +7,13 @@ import {
   Post,
   Put,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+
+// Guards
+import { AuthGuard } from 'src/modules/auth/guard';
 
 // Services
 import { UserService } from '../application';
@@ -19,6 +23,7 @@ import { Status, UserDto } from 'src/core';
 import { DeleteResult } from 'typeorm';
 import { CreateUserInput, UpdateUserInput } from './inputs';
 
+@UseGuards(AuthGuard)
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
