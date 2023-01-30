@@ -4,8 +4,8 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { TweetDomain } from '../domain';
 
 // Interfaces
-import { DeleteResult, UpdateResult } from 'typeorm';
-import { Tweet } from '../core';
+import { DeleteResult } from 'typeorm';
+import { TweetDto } from '../core';
 import {
   CreateTweetParameters,
   DeleteTweetParameters,
@@ -14,6 +14,7 @@ import {
   RepostTweetParameters,
   UpdateTweetParameters,
 } from './tweet-service.type';
+import { Status } from 'src/core';
 
 @Injectable()
 export class TweetService {
@@ -24,7 +25,7 @@ export class TweetService {
     text,
     imagesURLs,
     userId,
-  }: CreateTweetParameters): Promise<Tweet> {
+  }: CreateTweetParameters): Promise<TweetDto> {
     try {
       if (!text && imagesURLs.length === 0) {
         throw new BadRequestException('Record cannot be empty.');
@@ -44,7 +45,7 @@ export class TweetService {
   public async repostTweet({
     tweetId,
     userId,
-  }: RepostTweetParameters): Promise<Tweet> {
+  }: RepostTweetParameters): Promise<TweetDto> {
     try {
       const tweet = await this.tweetDomain.getTweetByTweetId({ tweetId });
 
@@ -77,7 +78,7 @@ export class TweetService {
 
   public async getTweetById({
     tweetId,
-  }: GetTweetByIdParameters): Promise<Tweet> {
+  }: GetTweetByIdParameters): Promise<TweetDto> {
     try {
       const tweet = await this.tweetDomain.getTweetByTweetId({ tweetId });
 
@@ -93,7 +94,7 @@ export class TweetService {
 
   public async getAllUserTweets({
     userId,
-  }: GetAllUserTweetsParameters): Promise<Tweet[]> {
+  }: GetAllUserTweetsParameters): Promise<TweetDto[]> {
     try {
       return await this.tweetDomain.GetAllUserRecords({ authorId: userId });
     } catch (err) {
@@ -104,7 +105,7 @@ export class TweetService {
   public async updateTweet({
     userId,
     tweetId,
-  }: UpdateTweetParameters): Promise<UpdateResult> {
+  }: UpdateTweetParameters): Promise<TweetDto & { status: Status }> {
     try {
       const tweet = await this.tweetDomain.getTweetByTweetId({ tweetId });
 

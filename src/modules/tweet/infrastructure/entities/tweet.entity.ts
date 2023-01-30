@@ -1,22 +1,21 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
-import { uuid } from 'uuidv4';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class TweetEntity {
-  @PrimaryColumn({ type: 'uuid', nullable: false, default: uuid() })
-  public _id: string;
+  @PrimaryGeneratedColumn('uuid')
+  _id: string;
 
   @Column({
     type: 'timestamp',
     nullable: false,
   })
-  public createdAt: string;
+  public createdAt: Date;
 
   @Column({
     type: 'timestamp',
     nullable: false,
   })
-  public updatedAt: string;
+  public updatedAt: Date;
 
   @Column({ type: 'boolean', nullable: false })
   public isComment: boolean;

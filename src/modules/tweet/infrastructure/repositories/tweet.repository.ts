@@ -1,8 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeleteResult, Repository, UpdateResult } from 'typeorm';
-import { Tweet } from '../../core';
-import { TweetEntity } from '../entities/tweet.entity';
+import { DeleteResult, Repository } from 'typeorm';
+
+// Entities
+import { TweetEntity } from '../entities';
+
+// Interfaces
+import { Status } from 'src/core';
+import { TweetDto } from '../../core';
 import {
   createParameters,
   DeleteParameters,
@@ -25,10 +30,10 @@ export class TweetRepository {
     authorId,
     parentRecordAuthorId,
     parentRecordId,
-  }: createParameters): Promise<Tweet> {
+  }: createParameters): Promise<TweetDto> {
     return await this.tweetRepository.save({
-      createdAt: new Date().toUTCString(),
-      updatedAt: new Date().toUTCString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       isComment,
       text,
       imagesURLs: JSON.stringify(imagesURLs),
@@ -38,13 +43,15 @@ export class TweetRepository {
     });
   }
 
-  public async getByRecordId({ _id }: GetByRecordIdParameters): Promise<Tweet> {
+  public async getByRecordId({
+    _id,
+  }: GetByRecordIdParameters): Promise<TweetDto> {
     return await this.tweetRepository.findOneBy({ _id });
   }
 
   public async getAllByAuthorId({
     authorId,
-  }: GetAllByAuthorIdParameters): Promise<Tweet[]> {
+  }: GetAllByAuthorIdParameters): Promise<TweetDto[]> {
     return await this.tweetRepository.findBy({ authorId });
   }
 
@@ -53,16 +60,20 @@ export class TweetRepository {
     isComment,
     text,
     imagesURLs,
-  }: UpdateParameters): Promise<UpdateResult> {
-    return await this.tweetRepository.update(
+  }: UpdateParameters): Promise<TweetDto & { status: Status }> {
+    await this.tweetRepository.update(
       { _id },
       {
-        updatedAt: new Date().toUTCString(),
+        updatedAt: new Date(),
         isComment,
         text,
         imagesURLs: JSON.stringify(imagesURLs),
       },
     );
+
+    const updatedTweet = await this.tweetRepository.findOneBy({ _id });
+
+    return { ...updatedTweet, status: Status.success };
   }
 
   public async delete({ _id }: DeleteParameters): Promise<DeleteResult> {

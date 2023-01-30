@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { DeleteResult, UpdateResult } from 'typeorm';
+import { DeleteResult } from 'typeorm';
 
 // Repositories
 import { TweetRepository } from '../infrastructure';
 
 // Interfaces
-import { Tweet } from '../core';
+import { TweetDto } from '../core';
 import {
   CreateTweetParameters,
   DeleteTweetParameters,
@@ -13,6 +13,7 @@ import {
   GetTweetByRecordIdParameters,
   UpdateTweetParameters,
 } from './tweet-domain.type';
+import { Status } from 'src/core';
 
 @Injectable()
 export class TweetDomain {
@@ -25,7 +26,7 @@ export class TweetDomain {
     authorId,
     parentRecordAuthorId,
     parentRecordId,
-  }: CreateTweetParameters): Promise<Tweet> {
+  }: CreateTweetParameters): Promise<TweetDto> {
     return await this.tweetRepository.create({
       isComment,
       text,
@@ -38,13 +39,13 @@ export class TweetDomain {
 
   public async getTweetByTweetId({
     tweetId,
-  }: GetTweetByRecordIdParameters): Promise<Tweet> {
+  }: GetTweetByRecordIdParameters): Promise<TweetDto> {
     return this.tweetRepository.getByRecordId({ _id: tweetId });
   }
 
   public async GetAllUserRecords({
     authorId,
-  }: GetAllUserRecordsParameters): Promise<Tweet[]> {
+  }: GetAllUserRecordsParameters): Promise<TweetDto[]> {
     return await this.tweetRepository.getAllByAuthorId({ authorId });
   }
 
@@ -53,7 +54,7 @@ export class TweetDomain {
     isComment,
     text,
     imagesURLs,
-  }: UpdateTweetParameters): Promise<UpdateResult> {
+  }: UpdateTweetParameters): Promise<TweetDto & { status: Status }> {
     return await this.tweetRepository.update({
       _id: tweetId,
       isComment,
