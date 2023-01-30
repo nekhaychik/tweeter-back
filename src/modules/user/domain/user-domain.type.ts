@@ -20,6 +20,7 @@ export interface UpdateUserParameters {
   avatarURL?: string;
   hashedPassword?: string;
   emailCode?: string;
+  description?: string;
 }
 
 export interface DeleteUserParameters {

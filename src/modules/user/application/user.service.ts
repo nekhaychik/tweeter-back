@@ -146,8 +146,15 @@ export class UserService {
     username,
     password,
     emailCode,
+    description,
   }: UpdateUserParameters): Promise<UserDto & { status: Status }> {
     try {
+      const user = await this.userDomain.getUserById({ userId });
+
+      if (!user) {
+        throw new BadRequestException('User does not exist.');
+      }
+
       if (password) {
         password = await bcrypt.hash(password, +process.env.ROUNDED_SALT);
       }
@@ -158,6 +165,7 @@ export class UserService {
         username,
         hashedPassword: password,
         emailCode,
+        description,
       });
     } catch (err) {
       throw err;

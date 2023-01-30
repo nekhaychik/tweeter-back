@@ -21,4 +21,9 @@ export class UpdateUserInput {
   @IsString()
   @MinLength(6)
   public password?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  public description?: string;
 }

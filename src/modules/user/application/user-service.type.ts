@@ -32,6 +32,7 @@ export interface UpdateUserParameters {
   username?: string;
   password?: string;
   emailCode?: string;
+  description?: string;
 }
 
 export interface UpdateUserAvatarParameters {

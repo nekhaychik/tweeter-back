@@ -68,13 +68,14 @@ export class UserController {
     @Body() body: UpdateUserInput,
   ): Promise<UserDto & { status: Status }> {
     const { userId } = params;
-    const { email, password, username } = body;
+    const { email, password, username, description } = body;
 
     return await this.userService.updateUser({
       userId,
       email,
       username,
       password,
+      description,
     });
   }
 }

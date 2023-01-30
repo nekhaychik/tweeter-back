@@ -12,13 +12,16 @@ export class UserEntity {
   public username: string;
 
   @Column({ type: 'varchar', nullable: true })
-  avatarURL?: string;
+  public avatarURL?: string;
+
+  @Column({ type: 'text', nullable: true })
+  public description?: string;
 
   @Column({ type: 'varchar', nullable: false })
   public hashedPassword: string;
 
   @Column({ type: 'varchar', length: 50, nullable: false })
-  public emailCode?: string;
+  public emailCode: string;
 
   @Column({ type: 'varchar', nullable: true })
   public currentHashedRefreshToken?: string;
@@ -31,4 +34,7 @@ export class UserEntity {
 
   @Column({ type: 'timestamp', nullable: false })
   public updatedAt: Date;
+
+  @Column({ type: 'boolean', nullable: false, default: false })
+  public isEdited: boolean;
 }

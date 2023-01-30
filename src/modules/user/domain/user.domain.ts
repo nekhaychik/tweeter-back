@@ -58,6 +58,7 @@ export class UserDomain {
     avatarURL,
     hashedPassword,
     emailCode,
+    description,
   }: UpdateUserParameters): Promise<UserDto & { status: Status }> {
     return await this.userRepository.update({
       _id: userId,
@@ -66,6 +67,7 @@ export class UserDomain {
       avatarURL,
       hashedPassword,
       emailCode,
+      description,
     });
   }
 
