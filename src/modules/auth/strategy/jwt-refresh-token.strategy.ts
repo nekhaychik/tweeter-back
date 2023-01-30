@@ -4,10 +4,11 @@ import { Injectable } from '@nestjs/common';
 import { Request } from 'express';
 
 // Services
-import { UserEntity, UserService } from 'src/modules/user';
+import { UserService } from 'src/modules/user';
 
 // Interfaces
 import { ValidateParameters } from './strategy.interfaces';
+import { UserDto } from 'src/core';
 
 @Injectable()
 export class JwtRefreshTokenStrategy extends PassportStrategy(
@@ -29,7 +30,7 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(
   public async validate({
     request,
     payload,
-  }: ValidateParameters): Promise<UserEntity> {
+  }: ValidateParameters): Promise<UserDto> {
     const refreshToken = request.cookies?.Refresh;
 
     return await this.userService.getUserIfRefreshTokenMatches({

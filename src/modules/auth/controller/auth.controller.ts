@@ -25,9 +25,9 @@ export class AuthController {
 
   @Post('sign-up')
   public async signUp(@Body() body: SignUpInput): Promise<any> {
-    const { email, password } = body;
+    const { email, username, password } = body;
 
-    return await this.authService.signUp({ email, password });
+    return await this.authService.signUp({ email, username, password });
   }
 
   @Post('sign-up-verify')

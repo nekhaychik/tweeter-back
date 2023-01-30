@@ -1,13 +1,13 @@
-import { UserEntity } from 'src/modules/user';
+import { UserDto } from 'src/core';
 import { UpdateResult } from 'typeorm';
 
 export interface GetCookieWithJwtAccessTokenParameters {
-  userId: number;
+  userId: string;
   email: string;
 }
 
 export interface GetCookieWithJwtRefreshTokenParameters {
-  userId: number;
+  userId: string;
   email: string;
 }
 
@@ -18,6 +18,7 @@ export interface RefreshTokenCookie {
 
 export interface SignUpParameters {
   email: string;
+  username: string;
   password: string;
 }
 
@@ -41,7 +42,7 @@ export interface SignInParameters {
 }
 
 export interface SigInResponse {
-  user: UserEntity;
+  user: UserDto;
   accessTokenCookie: string;
   refreshTokenCookie: {
     token: string;

@@ -60,9 +60,17 @@ export class AuthService {
     };
   }
 
-  public async signUp({ email, password }: SignUpParameters): Promise<any> {
+  public async signUp({
+    email,
+    username,
+    password,
+  }: SignUpParameters): Promise<any> {
     try {
-      const user = await this.userService.createUser({ email, password });
+      const user = await this.userService.createUser({
+        email,
+        username,
+        password,
+      });
 
       const response = await this.mailService.sendMail({
         to: user.email,
@@ -87,11 +95,7 @@ export class AuthService {
         );
       }
 
-      const result = await this.userService.verifyUser({ userId: user._id });
-
-      if (!result) {
-        throw new Error('Something went wrong...');
-      }
+      await this.userService.verifyUser({ userId: user._id });
 
       const accessTokenCookie = this.getCookieWithJwtAccessToken({
         userId: user._id,
