@@ -36,6 +36,8 @@ export class UserRepository {
       username,
       hashedPassword,
       emailCode,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
   }
 

@@ -26,9 +26,9 @@ export class UserEntity {
   @Column({ type: 'boolean', nullable: false, default: false })
   public isVerified: boolean;
 
-  @Column({ type: 'date', nullable: false, default: new Date() })
+  @Column({ type: 'timestamp', nullable: false })
   public createdAt: Date;
 
-  @Column({ type: 'date', nullable: false, default: new Date() })
+  @Column({ type: 'timestamp', nullable: false })
   public updatedAt: Date;
 }
