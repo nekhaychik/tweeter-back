@@ -17,6 +17,15 @@ services:
     volumes:
       - db:/var/lib/mysql
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+  redis:
+    container_name: cache
+    image: redis
+    ports:
+      - 6380:6379
+    volumes:
+      - redis:/data
 volumes:
   db:
+    driver: local
+  redis:
     driver: local
