@@ -14,7 +14,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { AuthModule } from './modules/auth';
 import { UserEntity, UserModule } from './modules/user';
 import { TweetEntity, TweetModule } from './modules/tweet';
-import { AuthRefreshTokenModule } from './modules/auth-refresh-token';
+import { RefreshSessionModule } from './modules/refresh-session';
 
 // Middlewares
 import { AuthMiddleware } from './modules/auth/middlewares';
@@ -53,7 +53,7 @@ import { JwtService } from '@nestjs/jwt';
     AuthModule,
     UserModule,
     TweetModule,
-    AuthRefreshTokenModule,
+    RefreshSessionModule,
   ],
   controllers: [],
   providers: [JwtService],

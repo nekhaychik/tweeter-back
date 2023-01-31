@@ -5,9 +5,12 @@ import { Cache } from 'cache-manager';
 import { RefreshSessionDto } from '../entities';
 import {
   AddRefreshSessionParameters,
+  GetCountOfUserActiveSessionsParameters,
+  RemoveRefreshSessionParameteres,
   _AddRefreshSessionParameters,
   _IsValidSessionsCountParameters,
-  _WipeAllUserRefreshSessionsParameters,
+  WipeAllUserRefreshSessionsParameters,
+  _WipeOldestUserRefreshSessionParameters,
 } from '../repository-interfaces';
 
 @Injectable()
@@ -58,7 +61,19 @@ export class RefreshSessionRepository {
     }
   }
 
-  public async removeRefreshSession({ refreshToken, userId }) {
+  public async getCountOfUserActiveSessions({
+    userId,
+  }: GetCountOfUserActiveSessionsParameters): Promise<number> {
+    const userRefreshSessions: RefreshSessionDto[] =
+      await this.cacheService.get(userId);
+
+    return !!userRefreshSessions.length ? userRefreshSessions.length : 0;
+  }
+
+  public async removeRefreshSession({
+    refreshToken,
+    userId,
+  }: RemoveRefreshSessionParameteres): Promise<void> {
     const userSessions: RefreshSessionDto[] = await this.cacheService.get(
       userId,
     );
@@ -74,13 +89,15 @@ export class RefreshSessionRepository {
     }
   }
 
-  public async _wipeAllUserRefreshSessions({ userId }) {
+  public async deleteAllUserRefreshSessions({
+    userId,
+  }: WipeAllUserRefreshSessionsParameters): Promise<void> {
     await this.cacheService.del(userId);
   }
 
   public async _wipeOldestUserRefreshSession({
     userId,
-  }: _WipeAllUserRefreshSessionsParameters): Promise<void> {
+  }: _WipeOldestUserRefreshSessionParameters): Promise<void> {
     const cachedData: RefreshSessionDto[] = await this.cacheService.get(userId);
 
     cachedData.shift();

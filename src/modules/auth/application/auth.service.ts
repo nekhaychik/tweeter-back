@@ -6,7 +6,7 @@ import { v4 } from 'uuid';
 import { UserService } from 'src/modules/user';
 import { JwtService } from '@nestjs/jwt';
 import { MailerService } from '@nestjs-modules/mailer';
-import { RefreshSessionRepository } from 'src/modules/auth-refresh-token';
+import { RefreshSessionRepository } from 'src/modules/refresh-session';
 
 // Interfaces
 import {

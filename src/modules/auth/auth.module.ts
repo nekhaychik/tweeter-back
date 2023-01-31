@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 
 // Modules
 import { UserModule } from '../user';
-import { AuthRefreshTokenModule } from '../auth-refresh-token';
+import { RefreshSessionModule } from '../refresh-session';
 
 // Services
 import { JwtService } from '@nestjs/jwt';
@@ -17,7 +17,7 @@ import { AuthGuard } from './guard/auth.guard';
 import { AuthController } from './controller';
 
 @Module({
-  imports: [UserModule, AuthRefreshTokenModule],
+  imports: [UserModule, RefreshSessionModule],
   controllers: [AuthController],
   exports: [AuthService],
   providers: [
