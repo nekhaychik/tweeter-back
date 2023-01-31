@@ -40,7 +40,10 @@ export class AuthMiddleware implements NestMiddleware {
     }
 
     if (user) {
-      req.currentUser = user;
+      req.currentUser = {
+        userId: user._id,
+        email: user.email,
+      };
     } else {
       req.currentUser = null;
     }

@@ -1,24 +1,25 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { UpdateResult } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { v4 } from 'uuid';
 
 // Services
 import { UserService } from 'src/modules/user';
 import { JwtService } from '@nestjs/jwt';
 import { MailerService } from '@nestjs-modules/mailer';
+import { RefreshSessionRepository } from 'src/modules/auth-refresh-token';
 
 // Interfaces
 import {
-  GetCookieWithJwtAccessTokenParameters,
-  GetCookieWithJwtRefreshTokenParameters,
-  RefreshTokenCookie,
   SignUpParameters,
   SignUpVerifyParameters,
   SignOutParameters,
   SignInParameters,
-  SigInResponse,
+  MakeAccessTokenParameters,
+  AccessTokenConfig,
+  MakeRefreshTokenInfoParameters,
+  RefreshTokenInfo,
+  SuccessAuthResult,
 } from './auth-service.types';
-import { AccessTokenPayload } from '../core';
 
 @Injectable()
 export class AuthService {
@@ -26,37 +27,56 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
     private readonly mailService: MailerService,
+    private readonly refreshSessionRepository: RefreshSessionRepository,
   ) {}
 
-  public getCookieWithJwtAccessToken({
-    userId,
-    email,
-  }: GetCookieWithJwtAccessTokenParameters): string {
-    const payload: AccessTokenPayload = { userId, email };
-    const token = this.jwtService.sign(payload, {
-      secret: process.env.JWT_ACCESS_TOKEN_SECRET,
-      expiresIn: +process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME,
-    });
+  public async makeAccessToken({
+    user,
+  }: MakeAccessTokenParameters): Promise<string> {
+    const config: AccessTokenConfig = {
+      payload: {
+        userId: user._id,
+        email: user.email,
+      },
+      options: {
+        // algorithm: 'HS512',
+        subject: user._id,
+        secret: process.env.JWT_ACCESS_TOKEN_SECRET,
+        expiresIn: +process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME,
+      },
+    };
 
-    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME}`;
+    return this.jwtService.signAsync(config.payload, config.options);
   }
 
-  public getCookieWithJwtRefreshToken({
+  public async makeRefreshTokenInfo({
     userId,
-    email,
-  }: GetCookieWithJwtRefreshTokenParameters): RefreshTokenCookie {
-    const payload = { userId, email };
+    privacyInfo,
+    fingerprint,
+  }: MakeRefreshTokenInfoParameters): Promise<RefreshTokenInfo> {
+    const refreshTokenExpiresInMilliseconds =
+      new Date().getTime() + Number(process.env.JWT_REFRESH_EXPIRATION_TIME);
 
-    const token = this.jwtService.sign(payload, {
-      secret: process.env.JWT_REFRESH_TOKEN_SECRET,
-      expiresIn: +process.env.JWT_REFRESH_EXPIRATION_TIME,
+    const refreshTokenExpiresInSeconds =
+      refreshTokenExpiresInMilliseconds / 1000;
+
+    const newRefreshSession = {
+      refreshToken: v4(),
+      userId,
+      ip: privacyInfo.ipAdress,
+      ua: privacyInfo.userAgent,
+      fingerprint,
+      expiresIn: refreshTokenExpiresInMilliseconds.toString(),
+      createdAt: new Date(),
+    };
+
+    await this.refreshSessionRepository.addRefreshSession({
+      refreshSession: newRefreshSession,
     });
 
-    const cookie = `Refresh=${token}; HttpOnly; Path=/; Max-Age=${process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME}`;
-
     return {
-      cookie,
-      token,
+      refreshTokenExpiresInSeconds,
+      refreshToken: newRefreshSession.refreshToken,
     };
   }
 
@@ -85,7 +105,12 @@ export class AuthService {
     }
   }
 
-  public async signUpVerify({ email, emailCode }: SignUpVerifyParameters) {
+  public async signUpVerify({
+    email,
+    emailCode,
+    privacyInfo,
+    fingerprint,
+  }: SignUpVerifyParameters): Promise<SuccessAuthResult> {
     try {
       const user = await this.userService.getUserByEmail({ email });
 
@@ -97,25 +122,27 @@ export class AuthService {
 
       await this.userService.verifyUser({ userId: user._id });
 
-      const accessTokenCookie = this.getCookieWithJwtAccessToken({
+      const refreshTokenInfo = await this.makeRefreshTokenInfo({
         userId: user._id,
-        email,
-      });
-
-      const refreshTokenCookie = this.getCookieWithJwtRefreshToken({
-        userId: user._id,
-        email,
-      });
-
-      await this.userService.setCurrentRefreshToken({
-        userId: user._id,
-        refreshToken: refreshTokenCookie.token,
+        privacyInfo,
+        fingerprint,
       });
 
       return {
-        user,
-        accessTokenCookie,
-        refreshTokenCookie,
+        data: {
+          accessToken: await this.makeAccessToken({ user }),
+          refreshToken: refreshTokenInfo.refreshToken,
+        },
+        cookies: [
+          {
+            name: 'refreshToken',
+            value: refreshTokenInfo.refreshToken,
+            domain: 'localhost',
+            path: '/auth',
+            maxAge: refreshTokenInfo.refreshTokenExpiresInSeconds,
+            secure: false, // temp: should be deleted
+          },
+        ],
       };
     } catch (err) {
       throw err;
@@ -125,7 +152,9 @@ export class AuthService {
   public async signIn({
     email,
     password,
-  }: SignInParameters): Promise<SigInResponse> {
+    privacyInfo,
+    fingerprint,
+  }: SignInParameters): Promise<SuccessAuthResult> {
     try {
       const user = await this.userService.getUserByEmail({ email });
 
@@ -137,45 +166,58 @@ export class AuthService {
         throw new BadRequestException('Incorrect password.');
       }
 
-      const accessTokenCookie = this.getCookieWithJwtAccessToken({
+      const refreshTokenInfo = await this.makeRefreshTokenInfo({
         userId: user._id,
-        email,
-      });
-
-      const refreshTokenCookie = this.getCookieWithJwtRefreshToken({
-        userId: user._id,
-        email,
-      });
-
-      await this.userService.setCurrentRefreshToken({
-        userId: user._id,
-        refreshToken: refreshTokenCookie.token,
+        privacyInfo,
+        fingerprint,
       });
 
       return {
-        user,
-        accessTokenCookie,
-        refreshTokenCookie,
+        data: {
+          accessToken: await this.makeAccessToken({ user }),
+          refreshToken: refreshTokenInfo.refreshToken,
+        },
+        cookies: [
+          {
+            name: 'refreshToken',
+            value: refreshTokenInfo.refreshToken,
+            domain: 'localhost',
+            path: '/auth',
+            maxAge: refreshTokenInfo.refreshTokenExpiresInSeconds,
+            secure: false, // temp: should be deleted
+          },
+        ],
       };
     } catch (err) {
       throw err;
     }
   }
 
-  public async signOut({ email }: SignOutParameters): Promise<UpdateResult> {
+  public async signOut({
+    userId,
+    cookies,
+  }: SignOutParameters): Promise<{ result: string }> {
     try {
-      const user = await this.userService.getUserByEmail({ email });
+      const refreshToken = cookies['refreshToken'];
 
-      return await this.userService.removeRefreshToken({ userId: user._id });
+      if (!refreshToken) {
+        throw new BadRequestException('Incorrect refresh token');
+      }
+
+      await this.refreshSessionRepository.removeRefreshSession({
+        userId,
+        refreshToken,
+      });
+
+      return {
+        result: 'User was logged out',
+      };
     } catch (err) {
       throw err;
     }
   }
 
   public getCookiesForLogOut(): string[] {
-    return [
-      'Authentication=; HttpOnly; Path=/; Max-Age=0',
-      'Refresh=; HttpOnly; Path=/; Max-Age=0',
-    ];
+    return ['refreshToken=; HttpOnly; Path=/; Max-Age=0'];
   }
 }

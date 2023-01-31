@@ -1,19 +1,28 @@
-import { UserDto } from 'src/core';
-import { UpdateResult } from 'typeorm';
+import { PrivacyInfo, UserDto } from 'src/core';
+import { AccessTokenPayload } from '../core';
 
-export interface GetCookieWithJwtAccessTokenParameters {
-  userId: string;
-  email: string;
+export interface MakeAccessTokenParameters {
+  user: UserDto;
 }
 
-export interface GetCookieWithJwtRefreshTokenParameters {
+export interface MakeRefreshTokenInfoParameters {
   userId: string;
-  email: string;
+  privacyInfo: PrivacyInfo;
+  fingerprint: any;
 }
 
-export interface RefreshTokenCookie {
-  cookie: string;
-  token: string;
+export interface RefreshTokenInfo {
+  refreshTokenExpiresInSeconds: number;
+  refreshToken: string;
+}
+
+export interface AccessTokenConfig {
+  payload: AccessTokenPayload;
+  options: {
+    subject?: string;
+    secret: string;
+    expiresIn?: number;
+  };
 }
 
 export interface SignUpParameters {
@@ -22,34 +31,36 @@ export interface SignUpParameters {
   password: string;
 }
 
-export interface SignUpVerifyResponse {
-  result: UpdateResult;
-  accessTokenCookie: string;
-  refreshTokenCookie: {
-    token: string;
-    cookie: string;
-  };
-}
-
 export interface SignUpVerifyParameters {
   email: string;
   emailCode: string;
+  privacyInfo: PrivacyInfo;
+  fingerprint: any;
+}
+
+export interface SuccessAuthResult {
+  data: {
+    accessToken: string;
+    refreshToken: string;
+  };
+  cookies: {
+    name: string;
+    value: string;
+    domain?: string;
+    path?: string;
+    maxAge?: number;
+    secure: boolean;
+  }[];
 }
 
 export interface SignInParameters {
   email: string;
   password: string;
-}
-
-export interface SigInResponse {
-  user: UserDto;
-  accessTokenCookie: string;
-  refreshTokenCookie: {
-    token: string;
-    cookie: string;
-  };
+  privacyInfo: PrivacyInfo;
+  fingerprint: any;
 }
 
 export interface SignOutParameters {
-  email: string;
+  cookies: any;
+  userId: string;
 }

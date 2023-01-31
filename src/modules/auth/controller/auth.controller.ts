@@ -7,16 +7,19 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { Request } from 'express';
-import { CurrentUser } from 'src/core';
 
 // Decorators
-import { CurrentUserArgs } from 'src/core/decorators';
+import { CurrentUserArgs, PrivacyInfoArgs } from 'src/core/decorators';
+
+// Interfaces
+import { CurrentUser, PrivacyInfo } from 'src/core';
+import { SignInInput, SignUpInput, SignUpVerifyInput } from './inputs';
 
 // Services
 import { AuthService } from '../application';
+
+// Guard
 import { AuthGuard } from '../guard';
-import { SignInInput, SignUpInput, SignUpVerifyInput } from './inputs';
 
 @Controller('auth')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -33,37 +36,56 @@ export class AuthController {
   @Post('sign-up-verify')
   public async signUpVerify(
     @Body() body: SignUpVerifyInput,
-    @Req() request: Request,
+    @PrivacyInfoArgs() privacyInfo: PrivacyInfo,
+    @Req() request,
   ) {
     const { email, emailCode } = body;
 
-    const result = await this.authService.signUpVerify({ email, emailCode });
+    const result = await this.authService.signUpVerify({
+      email,
+      emailCode,
+      privacyInfo,
+      fingerprint: request.fingerprint,
+    });
 
-    request.res.setHeader('Set-Cookie', [
-      result.accessTokenCookie,
-      result.refreshTokenCookie.cookie,
-    ]);
+    request.res.cookie(result.cookies[0].name, result.cookies[0].value);
 
     return result;
   }
 
   @Post('sign-in')
-  public async signIn(@Body() body: SignInInput) {
+  public async signIn(
+    @Body() body: SignInInput,
+    @PrivacyInfoArgs() privacyInfo: PrivacyInfo,
+    @Req() request,
+  ) {
     const { email, password } = body;
 
-    return await this.authService.signIn({ email, password });
+    const result = await this.authService.signIn({
+      email,
+      password,
+      privacyInfo,
+      fingerprint: request.fingerprint,
+    });
+
+    request.res.cookie(result.cookies[0].name, result.cookies[0].value);
+
+    return result;
   }
 
   @UseGuards(AuthGuard)
   @Post('sign-out')
   public async signOut(
     @CurrentUserArgs() currentUser: CurrentUser,
-    @Req() request: Request,
+    @Req() request,
   ) {
-    const { email } = currentUser;
+    const { userId } = currentUser;
+    const { cookies } = request;
 
-    await this.authService.signOut({ email });
+    const result = await this.authService.signOut({ userId, cookies });
 
     request.res.setHeader('Set-Cookie', this.authService.getCookiesForLogOut());
+
+    return result;
   }
 }

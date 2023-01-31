@@ -1,17 +1,35 @@
-import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
+import {
+  CacheModule,
+  MiddlewareConsumer,
+  Module,
+  RequestMethod,
+} from '@nestjs/common';
+import * as redisStore from 'cache-manager-redis-store';
+import type { ClientOpts } from 'redis';
+
+// Modules
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MailerModule } from '@nestjs-modules/mailer';
-
-// Modules
 import { AuthModule } from './modules/auth';
 import { UserEntity, UserModule } from './modules/user';
 import { TweetEntity, TweetModule } from './modules/tweet';
+import { AuthRefreshTokenModule } from './modules/auth-refresh-token';
+
+// Middlewares
 import { AuthMiddleware } from './modules/auth/middlewares';
+
+// Services
 import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
+    CacheModule.register<ClientOpts>({
+      isGlobal: true,
+      store: redisStore,
+      host: process.env.REDIS_HOST,
+      port: +process.env.REDIS_PORT,
+    }),
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'mysql',
@@ -35,6 +53,7 @@ import { JwtService } from '@nestjs/jwt';
     AuthModule,
     UserModule,
     TweetModule,
+    AuthRefreshTokenModule,
   ],
   controllers: [],
   providers: [JwtService],
