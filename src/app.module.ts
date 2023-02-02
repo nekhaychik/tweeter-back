@@ -15,6 +15,7 @@ import { AuthModule } from './modules/auth';
 import { UserEntity, UserModule } from './modules/user';
 import { TweetEntity, TweetModule } from './modules/tweet';
 import { RefreshSessionModule } from './modules/refresh-session';
+import { SubscriptionEntity, SubscriptionModule } from './modules/subscription';
 
 // Middlewares
 import { AuthMiddleware } from './modules/auth/middlewares';
@@ -38,7 +39,7 @@ import { JwtService } from '@nestjs/jwt';
       username: `${process.env.MYSQL_USERNAME}`,
       password: `${process.env.MYSQL_PASSWORD}`,
       database: `${process.env.MYSQL_DATABASE}`,
-      entities: [UserEntity, TweetEntity],
+      entities: [UserEntity, TweetEntity, SubscriptionEntity],
       synchronize: true,
     }),
     MailerModule.forRoot({
@@ -54,6 +55,7 @@ import { JwtService } from '@nestjs/jwt';
     UserModule,
     TweetModule,
     RefreshSessionModule,
+    SubscriptionModule,
   ],
   controllers: [],
   providers: [JwtService],

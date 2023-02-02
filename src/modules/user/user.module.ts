@@ -22,7 +22,7 @@ import { UserController } from './controller';
     }),
   ],
   controllers: [UserController],
-  exports: [UserService],
+  exports: [UserService, UserDomain],
   providers: [UserEntity, UserRepository, UserDomain, UserService],
 })
 export class UserModule {}
