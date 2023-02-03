@@ -63,7 +63,7 @@ export class SubscriptionController {
     return await this.subscriptionService.getAllSubscribers({ userId });
   }
 
-  @Get('get-user-subscribers')
+  @Get('get-subscribers')
   public async getUserSubscribers(
     @Query() query: { userId: string },
   ): Promise<SubscriptionDto[]> {

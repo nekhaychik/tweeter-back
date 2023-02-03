@@ -19,7 +19,7 @@ import { AuthGuard } from 'src/modules/auth/guard';
 import { UserService } from '../application';
 
 // Interfaces
-import { Status, UserDto } from 'src/core';
+import { CurrentUser, CurrentUserArgs, Status, UserDto } from 'src/core';
 import { DeleteResult } from 'typeorm';
 import { CreateUserInput, UpdateUserInput } from './inputs';
 
@@ -33,6 +33,13 @@ export class UserController {
     const { email, username, password } = body;
 
     return await this.userService.createUser({ email, username, password });
+  }
+
+  @Get('/me')
+  public async getMe(@CurrentUserArgs() currentUser: CurrentUser) {
+    const { userId } = currentUser;
+
+    return await this.userService.getUserById({ userId });
   }
 
   @Get('/:userId')
