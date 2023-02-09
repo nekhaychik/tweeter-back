@@ -48,7 +48,7 @@ export interface SuccessAuthResult {
     value: string;
     domain?: string;
     path?: string;
-    maxAge?: number;
+    expires?: number;
     secure: boolean;
   }[];
 }

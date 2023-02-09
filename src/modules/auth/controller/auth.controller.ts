@@ -75,7 +75,7 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard)
-  @Post('sign-out')
+  @Get('sign-out')
   public async signOut(
     @CurrentUserArgs() currentUser: CurrentUser,
     @Req() request,
