@@ -3,37 +3,37 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 // Interfaces
 import { Status, UserDto } from 'src/core';
 import { TweetDto } from 'src/modules/tweet/core';
-import { LikeEntity } from '../infrastructure';
+import { RepostEntity } from '../infrastructure';
 import {
-  CreateLikeParameters,
-  DeleteLikeParameters,
-  GetAmountOfTweetLikesParameters,
-  GetUsersLikedTweetParameters,
-} from './like-service.type';
+  CreateRepostParameters,
+  DeleteRepostParameters,
+  GetAmountOfTweetRepostsParameters,
+  GetUsersRepostedTweetParameters,
+} from './repost-service.type';
 
 // Domains
 import { TweetDomain } from 'src/modules/tweet/domain';
 import { UserDomain } from 'src/modules/user';
-import { LikeDomain } from '../domain';
+import { RepostDomain } from '../domain';
 
 @Injectable()
-export class LikeService {
+export class RepostService {
   constructor(
-    private readonly likeDomain: LikeDomain,
+    private readonly repostDomain: RepostDomain,
     private readonly userDomain: UserDomain,
     private readonly tweetDomain: TweetDomain,
   ) {}
 
-  public async createLike({
+  public async createRepost({
     tweetId,
     userId,
-  }: CreateLikeParameters): Promise<LikeEntity> {
+  }: CreateRepostParameters): Promise<RepostEntity> {
     try {
       const user: UserDto = await this.userDomain.getUserById({ userId });
       const tweet: TweetDto = await this.tweetDomain.getTweetByTweetId({
         tweetId,
       });
-      const like: LikeEntity = await this.likeDomain.getLike({
+      const repost: RepostEntity = await this.repostDomain.getRepost({
         tweetId,
         userId,
       });
@@ -48,19 +48,19 @@ export class LikeService {
         );
       }
 
-      if (like) {
-        throw new BadRequestException('You already liked this tweet');
+      if (repost) {
+        throw new BadRequestException('You already reposted this tweet');
       }
 
-      return await this.likeDomain.createLike({ tweetId, userId });
+      return await this.repostDomain.createRepost({ tweetId, userId });
     } catch (err) {
       throw err;
     }
   }
 
-  public async getAmountOfTweetLikes({
+  public async getAmountOfTweetReposts({
     tweetId,
-  }: GetAmountOfTweetLikesParameters): Promise<number> {
+  }: GetAmountOfTweetRepostsParameters): Promise<number> {
     try {
       const tweet: TweetDto = await this.tweetDomain.getTweetByTweetId({
         tweetId,
@@ -72,15 +72,15 @@ export class LikeService {
         );
       }
 
-      return await this.likeDomain.countTweetLikes({ tweetId });
+      return await this.repostDomain.countTweetReposts({ tweetId });
     } catch (err) {
       throw err;
     }
   }
 
-  public async getUsersLikedTweet({
+  public async getUsersRepostedTweet({
     tweetId,
-  }: GetUsersLikedTweetParameters): Promise<string[]> {
+  }: GetUsersRepostedTweetParameters): Promise<string[]> {
     try {
       const tweet: TweetDto = await this.tweetDomain.getTweetByTweetId({
         tweetId,
@@ -92,22 +92,22 @@ export class LikeService {
         );
       }
 
-      return await this.likeDomain.getTweetLikeUsers({ tweetId });
+      return await this.repostDomain.getTweetRepostUsers({ tweetId });
     } catch (err) {
       throw err;
     }
   }
 
-  public async deleteLike({
+  public async deleteRepost({
     tweetId,
     userId,
-  }: DeleteLikeParameters): Promise<{ status: Status }> {
+  }: DeleteRepostParameters): Promise<{ status: Status }> {
     try {
       const user: UserDto = await this.userDomain.getUserById({ userId });
       const tweet: TweetDto = await this.tweetDomain.getTweetByTweetId({
         tweetId,
       });
-      const like: LikeEntity = await this.likeDomain.getLike({
+      const repost: RepostEntity = await this.repostDomain.getRepost({
         tweetId,
         userId,
       });
@@ -122,13 +122,13 @@ export class LikeService {
         );
       }
 
-      if (!like) {
+      if (!repost) {
         throw new BadRequestException(
           'You cannot unlike this tweet because you did not like it before',
         );
       }
 
-      await this.likeDomain.deleteLike({ tweetId, userId });
+      await this.repostDomain.deleteRepost({ tweetId, userId });
 
       return { status: Status.success };
     } catch (err) {

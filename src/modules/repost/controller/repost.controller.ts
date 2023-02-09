@@ -9,60 +9,60 @@ import {
 
 // Interfaces
 import { CurrentUser, CurrentUserArgs, Status } from 'src/core';
-import { LikeEntity } from '../infrastructure';
+import { RepostEntity } from '../infrastructure';
 
 // Guards
 import { AuthGuard } from 'src/modules/auth/guard';
 
 // Services
-import { LikeService } from '../application';
+import { RepostService } from '../application';
 
 @UseGuards(AuthGuard)
-@Controller('like')
-export class LikeController {
-  constructor(private readonly likeService: LikeService) {}
+@Controller('repost')
+export class RepostController {
+  constructor(private readonly repostService: RepostService) {}
 
   @Post('/:tweetId')
-  public async likeTweet(
+  public async repostTweet(
     @CurrentUserArgs() currentUser: CurrentUser,
     @Param() params: { tweetId: string },
-  ): Promise<LikeEntity> {
+  ): Promise<RepostEntity> {
     const { userId } = currentUser;
     const { tweetId } = params;
 
-    return await this.likeService.createLike({
+    return await this.repostService.createRepost({
       userId,
       tweetId,
     });
   }
 
   @Get('amount/:tweetId')
-  public async getAmountOfTweetLikes(
+  public async getAmountOfTweetReposts(
     @Param() params: { tweetId: string },
   ): Promise<number> {
     const { tweetId } = params;
 
-    return await this.likeService.getAmountOfTweetLikes({ tweetId });
+    return await this.repostService.getAmountOfTweetReposts({ tweetId });
   }
 
   @Get('users/:tweetId')
-  public async getUsersLikedTweet(
+  public async getUsersRepostedTweet(
     @Param() params: { tweetId: string },
   ): Promise<string[]> {
     const { tweetId } = params;
 
-    return await this.likeService.getUsersLikedTweet({ tweetId });
+    return await this.repostService.getUsersRepostedTweet({ tweetId });
   }
 
   @Delete('/:tweetId')
-  public async unlike(
+  public async deleteRepost(
     @CurrentUserArgs() currentUser: CurrentUser,
     @Param() params: { tweetId: string },
   ): Promise<{ status: Status }> {
     const { userId } = currentUser;
     const { tweetId } = params;
 
-    return await this.likeService.deleteLike({
+    return await this.repostService.deleteRepost({
       userId,
       tweetId,
     });
