@@ -3,37 +3,37 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 // Interfaces
 import { Status, UserDto } from 'src/core';
 import { TweetDto } from 'src/modules/tweet/core';
-import { RepostEntity } from '../infrastructure';
+import { SavedEntity } from '../infrastructure';
 import {
-  CreateRepostParameters,
-  DeleteRepostParameters,
-  GetAmountOfTweetRepostsParameters,
-  GetUsersRepostedTweetParameters,
-} from './repost-service.type';
+  CreateSavedParameters,
+  DeleteSavedParameters,
+  GetAmountOfTweetSavedParameters,
+  GetUsersSavedTweetParameters,
+} from './saved-service.type';
 
 // Domains
 import { TweetDomain } from 'src/modules/tweet/domain';
 import { UserDomain } from 'src/modules/user';
-import { RepostDomain } from '../domain';
+import { SavedDomain } from '../domain';
 
 @Injectable()
-export class RepostService {
+export class SavedService {
   constructor(
-    private readonly repostDomain: RepostDomain,
+    private readonly savedDomain: SavedDomain,
     private readonly userDomain: UserDomain,
     private readonly tweetDomain: TweetDomain,
   ) {}
 
-  public async createRepost({
+  public async createSaved({
     tweetId,
     userId,
-  }: CreateRepostParameters): Promise<RepostEntity> {
+  }: CreateSavedParameters): Promise<SavedEntity> {
     try {
       const user: UserDto = await this.userDomain.getUserById({ userId });
       const tweet: TweetDto = await this.tweetDomain.getTweetByTweetId({
         tweetId,
       });
-      const repost: RepostEntity = await this.repostDomain.getRepost({
+      const saved: SavedEntity = await this.savedDomain.getSaved({
         tweetId,
         userId,
       });
@@ -48,19 +48,19 @@ export class RepostService {
         );
       }
 
-      if (repost) {
-        throw new BadRequestException('You already reposted this tweet');
+      if (saved) {
+        throw new BadRequestException('You already saved this tweet');
       }
 
-      return await this.repostDomain.createRepost({ tweetId, userId });
+      return await this.savedDomain.createSaved({ tweetId, userId });
     } catch (err) {
       throw err;
     }
   }
 
-  public async getAmountOfTweetReposts({
+  public async getAmountOfTweetSaved({
     tweetId,
-  }: GetAmountOfTweetRepostsParameters): Promise<number> {
+  }: GetAmountOfTweetSavedParameters): Promise<number> {
     try {
       const tweet: TweetDto = await this.tweetDomain.getTweetByTweetId({
         tweetId,
@@ -72,15 +72,15 @@ export class RepostService {
         );
       }
 
-      return await this.repostDomain.countTweetReposts({ tweetId });
+      return await this.savedDomain.countTweetSaved({ tweetId });
     } catch (err) {
       throw err;
     }
   }
 
-  public async getUsersRepostedTweet({
+  public async getUsersSavedTweet({
     tweetId,
-  }: GetUsersRepostedTweetParameters): Promise<string[]> {
+  }: GetUsersSavedTweetParameters): Promise<string[]> {
     try {
       const tweet: TweetDto = await this.tweetDomain.getTweetByTweetId({
         tweetId,
@@ -92,22 +92,22 @@ export class RepostService {
         );
       }
 
-      return await this.repostDomain.getTweetRepostUsers({ tweetId });
+      return await this.savedDomain.getTweetSavedUsers({ tweetId });
     } catch (err) {
       throw err;
     }
   }
 
-  public async deleteRepost({
+  public async deleteSaved({
     tweetId,
     userId,
-  }: DeleteRepostParameters): Promise<{ status: Status }> {
+  }: DeleteSavedParameters): Promise<{ status: Status }> {
     try {
       const user: UserDto = await this.userDomain.getUserById({ userId });
       const tweet: TweetDto = await this.tweetDomain.getTweetByTweetId({
         tweetId,
       });
-      const repost: RepostEntity = await this.repostDomain.getRepost({
+      const saved: SavedEntity = await this.savedDomain.getSaved({
         tweetId,
         userId,
       });
@@ -122,13 +122,13 @@ export class RepostService {
         );
       }
 
-      if (!repost) {
+      if (!saved) {
         throw new BadRequestException(
-          'You cannot unrepost this tweet because you did not repost it before',
+          'You cannot unsave this tweet because you did not save it before',
         );
       }
 
-      await this.repostDomain.deleteRepost({ tweetId, userId });
+      await this.savedDomain.deleteSaved({ tweetId, userId });
 
       return { status: Status.success };
     } catch (err) {
