@@ -16,6 +16,7 @@ import { UserEntity, UserModule } from './modules/user';
 import { TweetEntity, TweetModule } from './modules/tweet';
 import { RefreshSessionModule } from './modules/refresh-session';
 import { SubscriptionEntity, SubscriptionModule } from './modules/subscription';
+import { LikeModule } from './modules/like';
 
 // Middlewares
 import { AuthMiddleware } from './modules/auth/middlewares';
@@ -56,6 +57,7 @@ import { JwtService } from '@nestjs/jwt';
     TweetModule,
     RefreshSessionModule,
     SubscriptionModule,
+    LikeModule,
   ],
   controllers: [],
   providers: [JwtService],

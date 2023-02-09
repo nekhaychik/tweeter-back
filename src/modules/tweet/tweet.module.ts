@@ -21,7 +21,7 @@ import { TweetEntity, TweetRepository } from './infrastructure';
       dest: process.env.MULTER_FOLDER_TWEETS_IMG,
     }),
   ],
-  exports: [TweetService],
+  exports: [TweetService, TweetDomain],
   controllers: [TweetController],
   providers: [TweetEntity, TweetRepository, TweetDomain, TweetService],
 })
