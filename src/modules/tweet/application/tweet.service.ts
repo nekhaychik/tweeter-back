@@ -33,9 +33,11 @@ export class TweetService {
 
       const imagesURLs = [];
 
-      files.forEach((file: Express.Multer.File) => {
-        imagesURLs.push(file.path);
-      });
+      if (files) {
+        files.forEach((file: Express.Multer.File) => {
+          imagesURLs.push(file.path);
+        });
+      }
 
       return await this.tweetDomain.createTweet({
         isComment,
@@ -59,15 +61,24 @@ export class TweetService {
         throw new BadRequestException('Tweet does not exist.');
       }
 
-      const {
-        isComment,
-        text,
-        imagesURLs: imagesURLsJSON,
-        _id: parentRecordId,
-        authorId: parentRecordAuthorId,
-      } = tweet;
+      let parentRecordId: string;
+      let parentRecordAuthorId: string;
 
-      const imagesURLs = JSON.parse(imagesURLsJSON);
+      if (tweet.parentRecordAuthorId) {
+        parentRecordId = tweet.parentRecordId;
+        parentRecordAuthorId = tweet.parentRecordAuthorId;
+      } else {
+        parentRecordId = tweet._id;
+        parentRecordAuthorId = tweet.authorId;
+      }
+
+      const { isComment, text, imagesURLs: imagesURLsJSON } = tweet;
+
+      let imagesURLs = [];
+
+      if (typeof imagesURLsJSON === 'string')
+        imagesURLs = JSON.parse(imagesURLsJSON);
+      else imagesURLs = imagesURLsJSON;
 
       return await this.tweetDomain.createTweet({
         isComment,

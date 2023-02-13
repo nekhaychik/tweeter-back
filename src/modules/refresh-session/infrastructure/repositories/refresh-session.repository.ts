@@ -78,9 +78,12 @@ export class RefreshSessionRepository {
       userId,
     );
 
-    const currentRefreshTokenIndex = userSessions.findIndex(
-      (session) => session.refreshToken === refreshToken,
-    );
+    let currentRefreshTokenIndex: number;
+
+    if (userSessions)
+      currentRefreshTokenIndex = userSessions.findIndex(
+        (session) => session.refreshToken === refreshToken,
+      );
 
     userSessions.splice(currentRefreshTokenIndex, 1);
 

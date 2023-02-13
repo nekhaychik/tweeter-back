@@ -139,7 +139,7 @@ export class AuthService {
             value: refreshTokenInfo.refreshToken,
             domain: 'localhost',
             path: '/auth',
-            expires: refreshTokenInfo.refreshTokenExpiresInSeconds,
+            expires: refreshTokenInfo.refreshTokenExpiresInSeconds * 1000,
             secure: false, // temp: should be deleted
           },
         ],
