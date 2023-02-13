@@ -9,6 +9,7 @@ import { TweetDto } from '../core';
 import {
   CreateTweetParameters,
   DeleteTweetParameters,
+  GetAllParameters,
   GetAllUserRecordsParameters,
   GetTweetByRecordIdParameters,
   UpdateTweetParameters,
@@ -47,6 +48,14 @@ export class TweetDomain {
     authorId,
   }: GetAllUserRecordsParameters): Promise<TweetDto[]> {
     return await this.tweetRepository.getAllByAuthorId({ authorId });
+  }
+
+  public async getAll({
+    limit,
+    offset,
+    keyword,
+  }: GetAllParameters): Promise<TweetDto[]> {
+    return await this.tweetRepository.getAll({ offset, limit, keyword });
   }
 
   public async updateTweet({

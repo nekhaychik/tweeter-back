@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -21,7 +22,11 @@ import { TweetService } from '../application';
 // Interfaces
 import { CurrentUser, CurrentUserArgs, Status } from 'src/core';
 import { TweetDto } from '../core';
-import { CreateTweetInput, UpdateTweetInput } from './inputs';
+import {
+  CreateTweetInput,
+  GetAllTweetsQuery,
+  UpdateTweetInput,
+} from './inputs';
 import { DeleteResult } from 'typeorm';
 
 @UseGuards(AuthGuard)
@@ -83,6 +88,15 @@ export class TweetController {
     const { userId } = currentUser;
 
     return await this.tweetService.getAllUserTweets({ userId });
+  }
+
+  @Get('all')
+  public async getAllTweets(
+    @Query() query: GetAllTweetsQuery,
+  ): Promise<TweetDto[]> {
+    const { limit, offset, keyword } = query;
+
+    return await this.tweetService.getAllTweets({ limit, offset, keyword });
   }
 
   @Put('/:tweetId')

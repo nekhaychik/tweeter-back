@@ -15,6 +15,12 @@ export interface GetAllUserRecordsParameters {
   authorId: string;
 }
 
+export interface GetAllParameters {
+  offset?: number;
+  limit?: number;
+  keyword?: string;
+}
+
 export interface UpdateTweetParameters {
   tweetId: string;
   isComment?: boolean;

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeleteResult, Repository } from 'typeorm';
+import { DeleteResult, Like, Repository } from 'typeorm';
 
 // Entities
 import { TweetEntity } from '../entities';
@@ -12,6 +12,7 @@ import {
   createParameters,
   DeleteParameters,
   GetAllByAuthorIdParameters,
+  GetAllParameters,
   GetByRecordIdParameters,
   UpdateParameters,
 } from '../repository-interfaces';
@@ -53,6 +54,19 @@ export class TweetRepository {
     authorId,
   }: GetAllByAuthorIdParameters): Promise<TweetDto[]> {
     return await this.tweetRepository.findBy({ authorId });
+  }
+
+  public async getAll({
+    offset,
+    limit,
+    keyword,
+  }: GetAllParameters): Promise<TweetDto[]> {
+    return await this.tweetRepository.find({
+      where: { text: Like('%' + keyword + '%') },
+      order: { createdAt: 'DESC' },
+      take: limit || 10,
+      skip: offset || 0,
+    });
   }
 
   public async update({

@@ -15,6 +15,12 @@ export interface GetAllByAuthorIdParameters {
   authorId: string;
 }
 
+export interface GetAllParameters {
+  offset?: number;
+  limit?: number;
+  keyword?: string;
+}
+
 export interface UpdateParameters {
   _id: string;
   isComment?: boolean;

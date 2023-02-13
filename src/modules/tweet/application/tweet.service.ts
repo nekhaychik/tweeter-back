@@ -9,6 +9,7 @@ import { TweetDto } from '../core';
 import {
   CreateTweetParameters,
   DeleteTweetParameters,
+  GetAllTweetsParameters,
   GetAllUserTweetsParameters,
   GetTweetByIdParameters,
   RepostTweetParameters,
@@ -114,6 +115,30 @@ export class TweetService {
   }: GetAllUserTweetsParameters): Promise<TweetDto[]> {
     try {
       return await this.tweetDomain.GetAllUserRecords({ authorId: userId });
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async getAllTweets({
+    offset,
+    limit,
+    keyword,
+  }: GetAllTweetsParameters): Promise<TweetDto[]> {
+    try {
+      if (offset && typeof +offset !== 'number') {
+        throw new BadRequestException('Offset parameter should be a number');
+      }
+
+      if (limit && typeof +limit !== 'number') {
+        throw new BadRequestException('Limit parameter should be a number');
+      }
+
+      return await this.tweetDomain.getAll({
+        limit: +limit,
+        offset: +offset,
+        keyword,
+      });
     } catch (err) {
       throw err;
     }

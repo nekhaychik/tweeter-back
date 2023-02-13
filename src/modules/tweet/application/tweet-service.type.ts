@@ -18,6 +18,12 @@ export interface GetAllUserTweetsParameters {
   userId: string;
 }
 
+export interface GetAllTweetsParameters {
+  offset?: string;
+  limit?: string;
+  keyword?: string;
+}
+
 export interface UpdateTweetParameters {
   userId: string;
   tweetId: string;
