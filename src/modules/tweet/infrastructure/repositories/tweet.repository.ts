@@ -57,9 +57,9 @@ export class TweetRepository {
   }
 
   public async getAll({
-    offset,
-    limit,
-    keyword,
+    offset = 0,
+    limit = 10,
+    keyword = '',
   }: GetAllParameters): Promise<TweetDto[]> {
     return await this.tweetRepository.find({
       where: { text: Like('%' + keyword + '%') },

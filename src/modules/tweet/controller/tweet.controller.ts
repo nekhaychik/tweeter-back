@@ -63,9 +63,9 @@ export class TweetController {
     return await this.tweetService.repostTweet({ userId, tweetId });
   }
 
-  @Get('/:tweetId')
+  @Get('/')
   public async getTweetById(
-    @Param() params: { tweetId: string },
+    @Query() params: { tweetId: string },
   ): Promise<TweetDto> {
     const { tweetId } = params;
 

@@ -28,7 +28,7 @@ export class TweetService {
     userId,
   }: CreateTweetParameters): Promise<TweetDto> {
     try {
-      if (!text && files.length === 0) {
+      if (!text && (!files || files.length === 0)) {
         throw new BadRequestException('Record cannot be empty.');
       }
 
