@@ -16,6 +16,10 @@ export interface GetUsersSavedTweetParameters {
   tweetId: string;
 }
 
+export interface GetAllSavedByUserIdParameters {
+  userId: string;
+}
+
 export interface DeleteSavedParameters {
   tweetId: string;
   userId: string;

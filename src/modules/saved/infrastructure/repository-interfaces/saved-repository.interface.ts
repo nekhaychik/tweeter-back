@@ -8,6 +8,10 @@ export interface GetSavedParameters {
   userId: string;
 }
 
+export interface GetAllSavedByUserIdParameters {
+  userId: string;
+}
+
 export interface CountTweetSavedParameters {
   tweetId: string;
 }

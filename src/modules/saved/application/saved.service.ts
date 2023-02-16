@@ -7,6 +7,7 @@ import { SavedEntity } from '../infrastructure';
 import {
   CreateSavedParameters,
   DeleteSavedParameters,
+  GetAllSavedByUserIdParameters,
   GetAmountOfTweetSavedParameters,
   GetUsersSavedTweetParameters,
 } from './saved-service.type';
@@ -93,6 +94,22 @@ export class SavedService {
       }
 
       return await this.savedDomain.getTweetSavedUsers({ tweetId });
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async getAllSavedByUserId({
+    userId,
+  }: GetAllSavedByUserIdParameters): Promise<SavedEntity[]> {
+    try {
+      const user: UserDto = await this.userDomain.getUserById({ userId });
+
+      if (!user) {
+        throw new BadRequestException(`User with id=${userId} does not exist`);
+      }
+
+      return await this.savedDomain.getAllSavedByUserId({ userId });
     } catch (err) {
       throw err;
     }

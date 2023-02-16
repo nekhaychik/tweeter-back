@@ -8,6 +8,7 @@ import {
   CountTweetSavedParameters,
   CreateParameters,
   DeleteParameters,
+  GetAllSavedByUserIdParameters,
   GetSavedParameters,
   GetTweetSavedUsersParameters,
 } from '../repository-interfaces';
@@ -35,6 +36,12 @@ export class SavedRepository {
     userId,
   }: GetSavedParameters): Promise<SavedEntity> {
     return await this.savedRepository.findOneBy({ tweetId, userId });
+  }
+
+  public async getAllSavedByUserId({
+    userId,
+  }: GetAllSavedByUserIdParameters): Promise<SavedEntity[]> {
+    return await this.savedRepository.findBy({ userId });
   }
 
   public async countTweetSaved({

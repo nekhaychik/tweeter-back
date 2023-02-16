@@ -6,6 +6,7 @@ import {
   CountTweetSavedParameters,
   CreateSavedParameters,
   DeleteSavedParameters,
+  GetAllSavedByUserIdParameters,
   GetSavedParameters,
   GetTweetSavedUsersParameters,
 } from './saved-domain.type';
@@ -29,6 +30,12 @@ export class SavedDomain {
     userId,
   }: GetSavedParameters): Promise<SavedEntity> {
     return await this.savedRepository.getSaved({ tweetId, userId });
+  }
+
+  public async getAllSavedByUserId({
+    userId,
+  }: GetAllSavedByUserIdParameters): Promise<SavedEntity[]> {
+    return await this.savedRepository.getAllSavedByUserId({ userId });
   }
 
   public async countTweetSaved({

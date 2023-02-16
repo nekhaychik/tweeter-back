@@ -54,6 +54,15 @@ export class SavedController {
     return await this.savedService.getUsersSavedTweet({ tweetId });
   }
 
+  @Get('my-all')
+  public async getAllUserSaved(
+    @CurrentUserArgs() currentUser: CurrentUser,
+  ): Promise<SavedEntity[]> {
+    const { userId } = currentUser;
+
+    return await this.savedService.getAllSavedByUserId({ userId });
+  }
+
   @Delete('/:tweetId')
   public async deleteSaved(
     @CurrentUserArgs() currentUser: CurrentUser,
