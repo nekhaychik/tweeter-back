@@ -4,7 +4,7 @@ export interface TweetDto {
   updatedAt: Date;
   isComment: boolean;
   text?: string;
-  imagesURLs?: string;
+  imagesURLs?: string | string[];
   authorId: string;
   parentRecordAuthorId?: string;
   parentRecordId?: string;

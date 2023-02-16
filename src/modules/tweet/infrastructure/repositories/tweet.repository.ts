@@ -62,7 +62,7 @@ export class TweetRepository {
     keyword = '',
   }: GetAllParameters): Promise<TweetDto[]> {
     return await this.tweetRepository.find({
-      where: { text: Like('%' + keyword + '%') },
+      // where: { text: Like('%' + keyword + '%') },
       order: { createdAt: 'DESC' },
       take: limit || 10,
       skip: offset || 0,

@@ -6,6 +6,8 @@ import {
 } from '@nestjs/common';
 import * as redisStore from 'cache-manager-redis-store';
 import type { ClientOpts } from 'redis';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 // Modules
 import { ConfigModule } from '@nestjs/config';
@@ -60,6 +62,9 @@ import { JwtService } from '@nestjs/jwt';
           pass: `${process.env.MAILER_API_KEY}`,
         },
       },
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'images/tweets'),
     }),
     AuthModule,
     UserModule,

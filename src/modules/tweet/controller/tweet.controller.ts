@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   Query,
+  Res,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -28,6 +29,8 @@ import {
   UpdateTweetInput,
 } from './inputs';
 import { DeleteResult } from 'typeorm';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 @UseGuards(AuthGuard)
 @Controller('tweet')
@@ -35,7 +38,20 @@ export class TweetController {
   constructor(private readonly tweetService: TweetService) {}
 
   @Post('/')
-  @UseInterceptors(FilesInterceptor('files'))
+  @UseInterceptors(
+    FilesInterceptor('files', 9, {
+      storage: diskStorage({
+        destination: './images/tweets',
+        filename: (req, file, cb) => {
+          const randomName = Array(32)
+            .fill(null)
+            .map(() => Math.round(Math.random() * 16).toString(16))
+            .join('');
+          return cb(null, `${randomName}${extname(file.originalname)}`);
+        },
+      }),
+    }),
+  )
   public async createTweet(
     @CurrentUserArgs() currentUser: CurrentUser,
     @Body() body: CreateTweetInput,
@@ -50,6 +66,16 @@ export class TweetController {
       text,
       files,
     });
+  }
+
+  @Get('/image')
+  public async getImage(
+    @Query() query: { filename: string },
+    @Res() res,
+  ): Promise<any> {
+    const { filename } = query;
+
+    res.sendFile(filename, { root: 'images/tweets' });
   }
 
   @Post('repost/:tweetId')

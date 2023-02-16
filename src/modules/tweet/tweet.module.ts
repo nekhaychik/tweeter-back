@@ -18,7 +18,7 @@ import { TweetEntity, TweetRepository } from './infrastructure';
   imports: [
     TypeOrmModule.forFeature([TweetEntity]),
     MulterModule.register({
-      dest: process.env.MULTER_FOLDER_TWEETS_IMG,
+      dest: './images/tweets',
     }),
   ],
   exports: [TweetService, TweetDomain],

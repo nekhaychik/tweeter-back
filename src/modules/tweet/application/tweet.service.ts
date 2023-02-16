@@ -36,7 +36,7 @@ export class TweetService {
 
       if (files) {
         files.forEach((file: Express.Multer.File) => {
-          imagesURLs.push(file.path);
+          imagesURLs.push(file.filename);
         });
       }
 
@@ -73,13 +73,14 @@ export class TweetService {
         parentRecordAuthorId = tweet.authorId;
       }
 
-      const { isComment, text, imagesURLs: imagesURLsJSON } = tweet;
+      const { isComment, text, imagesURLs: tempImagesURLs } = tweet;
+      let imagesURLs: string[];
 
-      let imagesURLs = [];
-
-      if (typeof imagesURLsJSON === 'string')
-        imagesURLs = JSON.parse(imagesURLsJSON);
-      else imagesURLs = imagesURLsJSON;
+      if (!Array.isArray(tempImagesURLs)) {
+        imagesURLs = JSON.parse(tempImagesURLs);
+      } else {
+        imagesURLs = tempImagesURLs;
+      }
 
       return await this.tweetDomain.createTweet({
         isComment,
