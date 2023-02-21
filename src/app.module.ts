@@ -21,6 +21,7 @@ import { SubscriptionEntity, SubscriptionModule } from './modules/subscription';
 import { LikeEntity, LikeModule } from './modules/like';
 import { RepostEntity, RepostModule } from './modules/repost';
 import { SavedEntity, SavedModule } from './modules/saved';
+import { CommentEntity, CommentModule } from './modules/comment';
 
 // Middlewares
 import { AuthMiddleware } from './modules/auth/middlewares';
@@ -51,6 +52,7 @@ import { JwtService } from '@nestjs/jwt';
         LikeEntity,
         RepostEntity,
         SavedEntity,
+        CommentEntity,
       ],
       synchronize: true,
     }),
@@ -74,6 +76,7 @@ import { JwtService } from '@nestjs/jwt';
     LikeModule,
     RepostModule,
     SavedModule,
+    CommentModule,
   ],
   controllers: [],
   providers: [JwtService],

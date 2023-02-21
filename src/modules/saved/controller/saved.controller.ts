@@ -55,7 +55,7 @@ export class SavedController {
   }
 
   @Get('my-all')
-  public async getAllUserSaved(
+  public async getAllMySaved(
     @CurrentUserArgs() currentUser: CurrentUser,
   ): Promise<SavedEntity[]> {
     const { userId } = currentUser;
